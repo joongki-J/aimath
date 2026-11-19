@@ -128,6 +128,15 @@ const TOOLS = [
     download: "5단원 실습자료 2.xlsx"
   },
   {
+    title: "인공지능 수학탐구 보고서 양식",
+    subject: "5단원",
+    type: "양식",
+    symbol: "✎",
+    description: "탐구 보고서를 작성하는 구글 문서 양식입니다. 누르면 내 구글 드라이브에 사본을 만들어 작성할 수 있습니다. (구글 로그인 필요)",
+    tags: ["탐구보고서", "보고서 양식", "수학탐구", "구글 문서"],
+    url: "https://docs.google.com/document/d/1Nsb2AfLPpJam8Rg2R9UmhR24ZXkvajfxO_0hJdfTyMI/copy"
+  },
+  {
     title: "네이버 데이터랩",
     subject: "5단원",
     type: "사이트",
