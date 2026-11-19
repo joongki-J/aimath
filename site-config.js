@@ -101,14 +101,33 @@ const TOOLS = [
     tags: ["인공지능과 수학탐구", "탐구", "활동지"],
     url: ""
   },
+  // ===== 활동 공유 (분반별 구글 슬라이드) =====
   {
-    title: "수업 아이디어 공유 게시판",
-    subject: "5단원",
-    type: "공유",
-    symbol: "✦",
-    description: "8교시 수업 아이디어 공유 및 토의·토론에서 쓰는 게시판입니다.",
-    tags: ["공유", "게시판", "토의토론", "패들렛"],
-    url: ""
+    title: "1분반 활동 공유",
+    subject: "활동 공유",
+    type: "슬라이드",
+    symbol: "1",
+    description: "1분반 모둠 활동 결과를 함께 정리하고 나누는 구글 슬라이드입니다.",
+    tags: ["활동 공유", "1분반", "구글 슬라이드", "수업 아이디어"],
+    url: "https://docs.google.com/presentation/d/1bg3iUnQ9AWYUwj1-NN90b6KxEUb0Pzjd1N4ISQqp5QQ/edit?slide=id.h219c9dc27e0b0a3c_0_0#slide=id.h219c9dc27e0b0a3c_0_0"
+  },
+  {
+    title: "2분반 활동 공유",
+    subject: "활동 공유",
+    type: "슬라이드",
+    symbol: "2",
+    description: "2분반 모둠 활동 결과를 함께 정리하고 나누는 구글 슬라이드입니다.",
+    tags: ["활동 공유", "2분반", "구글 슬라이드", "수업 아이디어"],
+    url: "https://docs.google.com/presentation/d/1Pv69NxUHVeSDN3Ns-bAe3tDzDpib5lWelJF56aOymyk/edit"
+  },
+  {
+    title: "3분반 활동 공유",
+    subject: "활동 공유",
+    type: "슬라이드",
+    symbol: "3",
+    description: "3분반 모둠 활동 결과를 함께 정리하고 나누는 구글 슬라이드입니다.",
+    tags: ["활동 공유", "3분반", "구글 슬라이드", "수업 아이디어"],
+    url: "https://docs.google.com/presentation/d/1ZmhUZ_GvbxG2tOTZMogvGso7VmiTQnsogNJuW9llmhI/edit"
   },
 
   // ===== 실습 도구 =====
@@ -184,7 +203,7 @@ const TOOLS = [
 // 자료 분류 (버튼 줄). 이름을 바꾸면 위 TOOLS의 subject도 똑같이 바꿔 주세요.
 const SUBJECT_GROUPS = [
   { label: "단원별", items: ["4단원", "5단원"] },
-  { label: "종류별", items: ["공통 안내", "실습 도구", "참고 사이트"] }
+  { label: "종류별", items: ["활동 공유", "공통 안내", "실습 도구", "참고 사이트"] }
 ];
 
 // ---------------------------------------------------------
@@ -203,7 +222,7 @@ const SCHEDULE = [
       { time: "09:00", end: "12:50", title: "4단원 예측과 최적화", note: "1~4교시", subject: "4단원" },
       { time: "13:00", end: "14:00", title: "점심시간" },
       { time: "14:00", end: "16:50", title: "5단원 인공지능과 수학탐구", note: "5~7교시", subject: "5단원" },
-      { time: "17:00", end: "17:50", title: "수업 아이디어 공유 및 토의·토론", note: "8교시" }
+      { time: "17:00", end: "17:50", title: "수업 아이디어 공유 및 토의·토론", note: "8교시", subject: "활동 공유" }
     ]
   }
 ];
