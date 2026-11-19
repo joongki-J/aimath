@@ -215,6 +215,27 @@ const SUBJECT_GROUPS = [
 
 const SCHEDULE = [
   {
+    day: "1일차",
+    date: "2026-11-20",
+    label: "11. 20.(금)",
+    sessions: [
+      { time: "14:00", end: "14:30", title: "등록", note: "5교시" },
+      { time: "14:30", end: "14:50", title: "개회식 및 오리엔테이션", note: "5교시" },
+      { time: "15:00", end: "15:50", title: "(공통강의) 인공지능 윤리", note: "6교시" },
+      { time: "16:00", end: "18:50", title: "인공지능과 빅데이터", note: "7~9교시" }
+    ]
+  },
+  {
+    day: "2일차",
+    date: "2026-11-21",
+    label: "11. 21.(토)",
+    sessions: [
+      { time: "09:00", end: "12:50", title: "텍스트 데이터 처리", note: "1~4교시" },
+      { time: "13:00", end: "14:00", title: "점심시간" },
+      { time: "14:00", end: "18:50", title: "이미지 데이터 처리", note: "5~9교시" }
+    ]
+  },
+  {
     day: "3일차",
     date: "2026-11-22",
     label: "11. 22.(일)",
@@ -249,7 +270,7 @@ const WIFI = [
     place: "컨벤션 A홀",
     rows: [
       { label: "ID", value: ["Baruemi_2.4G, 5G", "Baruemi1 2.4G, 5G, 6G"] },
-      { label: "PW", value: "X" }
+      { label: "PW", value: "없음" }
     ]
   },
   {
