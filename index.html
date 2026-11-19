@@ -24,6 +24,7 @@
       <nav class="site-nav" aria-label="주요 메뉴">
         <a href="#tools">자료 찾기</a>
         <a href="#schedule">연수 일정</a>
+        <a href="#wifi">Wi-Fi</a>
         <button class="outline-pill" id="siteQrBtn" type="button">접속 QR</button>
       </nav>
     </div>
@@ -37,7 +38,7 @@
 
       <div class="hero-layout">
         <div class="hero-copy">
-          <p class="eyebrow"><span></span><b data-site="eyebrow" style="font-weight:inherit">2박 3일 연수</b></p>
+          <p class="eyebrow"><span></span><b data-site="eyebrow" style="font-weight:inherit">연수 3일차</b></p>
 
           <h1 class="hero-title">
             <span data-site="heroLine1">수학을</span><br>
@@ -50,13 +51,14 @@
 
           <div class="hero-actions">
             <a class="primary-pill" href="#tools">자료 바로가기 <span>↘</span></a>
-            <a class="outline-pill link-pill" href="#schedule">연수 일정 보기</a>
+            <a class="outline-pill link-pill" href="#wifi">📶 Wi-Fi 안내</a>
+            <a class="outline-pill link-pill" href="#schedule">일정 보기</a>
           </div>
 
           <div class="hero-stats">
             <span><b id="toolCount">0</b>개 자료</span>
             <i></i>
-            <span><b>3</b>일 일정</span>
+            <span><b>2</b>개 단원</span>
             <i></i>
             <span>QR로 바로 접속</span>
           </div>
@@ -74,7 +76,7 @@
           <div>
             <p class="section-kicker">MATERIALS &amp; LINKS</p>
             <h2>연수 자료 찾기</h2>
-            <p>일차나 종류를 고르거나 검색해서 필요한 자료를 바로 여세요.</p>
+            <p>단원이나 종류를 고르거나 검색해서 필요한 자료를 바로 여세요.</p>
           </div>
           <div class="tool-number"><span id="filteredCount">0</span> LINKS</div>
         </div>
@@ -102,13 +104,21 @@
         <div class="schedule-head">
           <div>
             <p class="how-eyebrow"><span></span>연수 일정</p>
-            <h2 class="how-title">2박 3일<br><em>한눈에 보기</em></h2>
+            <h2 class="how-title">3일차 일정과<br><em>Wi-Fi 안내</em></h2>
           </div>
           <dl class="info-list" id="infoList"></dl>
         </div>
 
-        <div class="day-grid" id="dayGrid"></div>
-        <p class="schedule-note" id="scheduleNote" hidden></p>
+        <div class="schedule-body">
+          <div>
+            <div class="day-grid" id="dayGrid"></div>
+            <p class="schedule-note" id="scheduleNote" hidden></p>
+          </div>
+          <aside class="wifi-panel" id="wifi" aria-labelledby="wifiTitle">
+            <h3 id="wifiTitle"><span aria-hidden="true">📶</span> Wi-Fi 안내</h3>
+            <div class="wifi-list" id="wifiList"></div>
+          </aside>
+        </div>
       </div>
     </section>
   </main>

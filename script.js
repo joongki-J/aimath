@@ -28,6 +28,7 @@ const els = {
   filteredCount: document.querySelector("#filteredCount"),
   dayGrid: document.querySelector("#dayGrid"),
   infoList: document.querySelector("#infoList"),
+  wifiList: document.querySelector("#wifiList"),
   empty: document.querySelector("#emptyMessage"),
   modal: document.querySelector("#qrModal"),
   qrTitle: document.querySelector("#qrTitle"),
@@ -243,6 +244,36 @@ function renderInfo() {
   `).join("");
 }
 
+function showSubject(subject) {
+  els.search.value = "";
+  setSubject(subject);
+  document.querySelector("#tools").scrollIntoView({ behavior: "smooth" });
+}
+
+function renderWifi() {
+  const panel = document.querySelector("#wifi");
+  if (!els.wifiList) return;
+  if (typeof WIFI === "undefined" || !WIFI.length) {
+    if (panel) panel.hidden = true;
+    return;
+  }
+  els.wifiList.innerHTML = WIFI.map(net => `
+    <section class="wifi-card">
+      <header>
+        <strong>${escapeHtml(net.title)}</strong>
+        ${net.place ? `<span>${escapeHtml(net.place)}</span>` : ""}
+      </header>
+      ${net.desc ? `<p>${escapeHtml(net.desc)}</p>` : ""}
+      <dl>
+        ${(net.rows || []).map(row => `
+          <div><dt>${escapeHtml(row.label)}</dt><dd>${[].concat(row.value).map(v => `<span>${escapeHtml(v)}</span>`).join("")}</dd></div>
+        `).join("")}
+      </dl>
+      ${net.foot ? `<p class="wifi-foot">${escapeHtml(net.foot)}</p>` : ""}
+    </section>
+  `).join("");
+}
+
 function renderSchedule() {
   if (!els.dayGrid || typeof SCHEDULE === "undefined") return;
   const today = todayString();
@@ -263,7 +294,9 @@ function renderSchedule() {
           <li>
             <time>${escapeHtml(session.time || "")}${session.end ? `<span>~${escapeHtml(session.end)}</span>` : ""}</time>
             <div>
-              <strong>${escapeHtml(session.title || "")}</strong>
+              ${session.subject
+                ? `<button class="session-link" type="button" data-subject="${escapeHtml(session.subject)}">${escapeHtml(session.title || "")} <span aria-hidden="true">↗</span></button>`
+                : `<strong>${escapeHtml(session.title || "")}</strong>`}
               ${session.note || session.speaker ? `<small>${escapeHtml(session.note || session.speaker)}</small>` : ""}
             </div>
           </li>
@@ -271,10 +304,9 @@ function renderSchedule() {
       </ol>
       ${day.subject ? `<button class="day-link" type="button">이날 자료 보기 ↗</button>` : ""}
     `;
-    col.querySelector(".day-link")?.addEventListener("click", () => {
-      els.search.value = "";
-      setSubject(day.subject);
-      document.querySelector("#tools").scrollIntoView({ behavior: "smooth" });
+    col.querySelector(".day-link")?.addEventListener("click", () => showSubject(day.subject));
+    col.querySelectorAll(".session-link").forEach(btn => {
+      btn.addEventListener("click", () => showSubject(btn.dataset.subject));
     });
     els.dayGrid.appendChild(col);
   });
@@ -361,3 +393,4 @@ els.count.textContent = TOOLS.length;
 renderTools();
 renderInfo();
 renderSchedule();
+renderWifi();
