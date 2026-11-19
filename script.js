@@ -139,7 +139,7 @@ function setupAutoThumbnail(card, tool) {
   }
 
   // 저장소 안의 앱만 thumbnails/폴더이름.png 를 자동으로 찾음
-  if (!hasLink(tool) || isExternal(tool.url)) return;
+  if (!hasLink(tool) || isExternal(tool.url) || tool.download) return;
 
   const folder = toolFolderName(tool);
   const extensions = ["jpg", "png", "jpeg", "webp"];
@@ -207,7 +207,9 @@ function renderTools() {
         <p>${escapeHtml(tool.description)}</p>
         <div class="card-actions">
           ${hasLink(tool)
-            ? `<a class="open-tool" href="${escapeHtml(tool.url)}"${isExternal(tool.url) ? ' target="_blank" rel="noopener"' : ""}>자료 열기 ↗</a>`
+            ? tool.download
+              ? `<a class="open-tool" href="${escapeHtml(tool.url)}" download="${escapeHtml(tool.download)}">내려받기 ↓</a>`
+              : `<a class="open-tool" href="${escapeHtml(tool.url)}"${isExternal(tool.url) ? ' target="_blank" rel="noopener"' : ""}>자료 열기 ↗</a>`
             : `<span class="open-tool is-pending" aria-disabled="true">링크 준비 중</span>`}
           ${hasLink(tool) ? `<button class="qr-tool" type="button" aria-label="${escapeHtml(tool.title)} QR 열기">
             <span class="qr-glyph" aria-hidden="true">
