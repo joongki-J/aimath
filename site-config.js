@@ -106,6 +106,16 @@ const TOOLS = [
     url: "./gd-yaxb/"
   },
 
+  {
+    title: "경사하강법 3D 시각화",
+    subject: "4단원",
+    type: "실습",
+    symbol: "⛰",
+    description: "3차원 손실곡면 위에서 공이 최저점을 향해 내려가는 과정을 관찰합니다. 학습률·모멘텀을 바꾸고 볼록·계곡·언덕 함수를 비교할 수 있습니다.",
+    tags: ["경사하강법", "3D", "손실곡면", "모멘텀", "학습률"],
+    url: "https://mathlove22.github.io/3d-decent/",
+    thumb: "./thumbnails/gd-3d.png"
+  },
   // ===== 5단원 · 인공지능과 수학탐구 (3일차 5~7교시) · 활용 사이트 =====
   {
     title: "5단원 실습자료 1",
@@ -167,6 +177,18 @@ const TOOLS = [
     thumb: "./thumbnails/u5-kma.png"
   },
 
+  // ===== 참고 자료 =====
+  {
+    title: "AskMath 인공지능 수학 자료",
+    subject: "참고 자료",
+    type: "자료실",
+    symbol: "A",
+    description: "한국과학창의재단 AskMath의 인공지능 수학 교수학습 자료입니다. 인공지능 속 수학 원리 탐구 활동, 모듈형 교재 PDF와 AI웹실험실 안내 등이 있습니다.",
+    tags: ["AskMath", "한국과학창의재단", "교수학습 자료", "모듈형 교재", "AI웹실험실"],
+    url: "https://askmath.kosac.re.kr/board.do?menuPos=17&idx=&board_code=601LT980&skinTabPos3=1&tabPos3=1&searchValue3=&skinSearchValue2=435&skinSearchValue3=&skinSearchValue4=&skinSearchValue6=&paramKey50=&searchValue1=0&searchKeyword=%EC%9D%B8%EA%B3%B5&pageIndex=1",
+    thumb: "./thumbnails/askmath-ai.png"
+  },
+
   // ===== 활동 공유 (분반별 구글 슬라이드) =====
   {
     title: "1분반 활동 공유",
@@ -211,7 +233,7 @@ const TOOLS = [
 // 자료 분류 (버튼 줄). 이름을 바꾸면 위 TOOLS의 subject도 똑같이 바꿔 주세요.
 const SUBJECT_GROUPS = [
   { label: "단원별", items: ["4단원", "5단원"] },
-  { label: "종류별", items: ["아이스브레이킹", "활동 공유"] }
+  { label: "종류별", items: ["아이스브레이킹", "활동 공유", "참고 자료"] }
 ];
 
 // ---------------------------------------------------------
