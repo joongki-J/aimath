@@ -88,6 +88,16 @@ const TOOLS = [
     url: "./birth-data/"
   },
   {
+    title: "지오지브라 클래식",
+    subject: "4단원",
+    type: "사이트",
+    symbol: "◎",
+    description: "그래프·스프레드시트·대수 창을 함께 쓰는 지오지브라입니다. 데이터를 붙여 넣어 산점도를 그리고 추세선을 그려 볼 수 있습니다.",
+    tags: ["지오지브라", "GeoGebra", "산점도", "추세선", "그래프"],
+    url: "https://www.geogebra.org/classic",
+    thumb: "./thumbnails/geogebra-classic.png"
+  },
+  {
     title: "손실함수 분석기",
     subject: "4단원",
     type: "실습",
