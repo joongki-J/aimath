@@ -127,15 +127,6 @@ const TOOLS = [
     thumb: "https://i.ytimg.com/vi/8861RzFOFs8/maxresdefault.jpg"
   },
   {
-    title: "퍼셉트론 논리 연산 실험실",
-    subject: "4단원",
-    type: "실습",
-    symbol: "⊕",
-    description: "퍼셉트론으로 AND·OR·NAND 논리 연산을 만들고, 가중치를 학습시켜 보고, 배타적 논리합(XOR)이 왜 한 층으로는 안 되는지 탐구합니다.",
-    tags: ["퍼셉트론", "가중치", "논리 연산", "XOR", "신경망"],
-    url: "./perceptron/"
-  },
-  {
     title: "단어별 가중치로 문장 분류하기",
     subject: "4단원",
     type: "실습",
