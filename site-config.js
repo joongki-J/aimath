@@ -127,6 +127,15 @@ const TOOLS = [
     thumb: "https://i.ytimg.com/vi/8861RzFOFs8/maxresdefault.jpg"
   },
   {
+    title: "화소별 가중치로 숫자 구분하기",
+    subject: "4단원",
+    type: "실습",
+    symbol: "▦",
+    description: "3×5 숫자 그림의 칸마다 가중치를 두고, 손실함수와 경사하강법으로 숫자를 분류합니다.",
+    tags: ["화소", "가중치", "숫자 분류", "인공신경망", "손실함수", "경사하강법", "이미지 데이터"],
+    url: "./digit-weights/"
+  },
+  {
     title: "단어별 가중치로 문장 분류하기",
     subject: "4단원",
     type: "실습",
