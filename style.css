@@ -482,6 +482,7 @@ button{cursor:pointer}
   background:#1a1d21;
   font-size:14px;
 }
+.info-list[hidden]{display:none}
 .info-list dt{color:#8a9198;font-weight:650}
 .info-list dd{margin:0;color:var(--cream);word-break:break-all}
 

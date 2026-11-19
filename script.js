@@ -240,7 +240,11 @@ function todayString() {
 }
 
 function renderInfo() {
-  if (!els.infoList || typeof INFO === "undefined") return;
+  if (!els.infoList) return;
+  if (typeof INFO === "undefined" || !INFO.length) {
+    els.infoList.hidden = true;
+    return;
+  }
   els.infoList.innerHTML = INFO.map(item => `
     <div><dt>${escapeHtml(item.label)}</dt><dd>${escapeHtml(item.value)}</dd></div>
   `).join("");
