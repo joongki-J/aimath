@@ -49,18 +49,20 @@ const TOOLS = [
     subject: "아이스브레이킹",
     type: "활동",
     symbol: "✺",
-    description: "활동 전에 몸과 마음을 푸는 아이스브레이킹 활동입니다.",
+    description: "카메라로 동작을 인식해 기지개 동작으로 점수를 겨루는 복불복 게임입니다. 카메라 권한이 필요합니다.",
     tags: ["아이스브레이킹", "스트레칭", "분위기 전환"],
-    url: "https://gemini.google.com/share/5cc4e5c7faf0?skid=c0253429-e452-4673-9001-f66858c643fe"
+    url: "https://gemini.google.com/share/5cc4e5c7faf0?skid=c0253429-e452-4673-9001-f66858c643fe",
+    thumb: "./thumbnails/ice-stretch.png"
   },
   {
     title: "경사하강법 게임",
     subject: "아이스브레이킹",
     type: "게임",
     symbol: "⛰",
-    description: "경사하강법의 원리를 간단한 게임으로 체험해 보는 활동입니다.",
+    description: "연구선에서 탐사 장치를 내려 바다 밑 가장 깊은 곳의 보물을 찾으며 경사하강법의 원리를 체험하는 게임입니다. (영어)",
     tags: ["아이스브레이킹", "경사하강법", "게임"],
-    url: "https://www.i-am.ai/gradient-descent.html"
+    url: "https://www.i-am.ai/gradient-descent.html",
+    thumb: "./thumbnails/ice-gd-game.png"
   },
 
   // ===== 4단원 · 예측과 최적화 (3일차 1~4교시) · 실습 앱 =====
