@@ -116,6 +116,16 @@ const TOOLS = [
     url: "https://mathlove22.github.io/3d-decent/",
     thumb: "./thumbnails/gd-3d.png"
   },
+  {
+    title: "경사하강법 영상 (MNIST 자료)",
+    subject: "4단원",
+    type: "영상",
+    symbol: "▶",
+    description: "3Blue1Brown 한국어 「AI가 궁금하다면 봐야할 기초영상 경사하강법 - DL2」. MNIST 손글씨 숫자 자료로 신경망이 경사하강법으로 학습하는 원리를 설명합니다. 30초부터 재생됩니다.",
+    tags: ["경사하강법", "MNIST", "손글씨 숫자", "신경망", "3Blue1Brown", "영상"],
+    url: "https://youtu.be/8861RzFOFs8?t=30",
+    thumb: "https://i.ytimg.com/vi/8861RzFOFs8/maxresdefault.jpg"
+  },
   // ===== 5단원 · 인공지능과 수학탐구 (3일차 5~7교시) · 활용 사이트 =====
   {
     title: "5단원 실습자료 1",
