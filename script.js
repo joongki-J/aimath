@@ -261,10 +261,10 @@ function renderSchedule() {
       <ol class="session-list">
         ${(day.sessions || []).map(session => `
           <li>
-            <time>${escapeHtml(session.time || "")}</time>
+            <time>${escapeHtml(session.time || "")}${session.end ? `<span>~${escapeHtml(session.end)}</span>` : ""}</time>
             <div>
               <strong>${escapeHtml(session.title || "")}</strong>
-              ${session.speaker ? `<small>${escapeHtml(session.speaker)}</small>` : ""}
+              ${session.note || session.speaker ? `<small>${escapeHtml(session.note || session.speaker)}</small>` : ""}
             </div>
           </li>
         `).join("")}
@@ -278,6 +278,13 @@ function renderSchedule() {
     });
     els.dayGrid.appendChild(col);
   });
+
+  const note = document.querySelector("#scheduleNote");
+  if (note) {
+    const text = typeof SCHEDULE_NOTE === "undefined" ? "" : SCHEDULE_NOTE;
+    note.textContent = text;
+    note.hidden = !text;
+  }
 }
 
 function escapeHtml(value) {
