@@ -1,5 +1,5 @@
 /* =========================
-   내 수학 실험실
+   인공지능 수학 연수
    메인 홈페이지 스타일
    ========================= */
 
@@ -426,6 +426,125 @@ button{cursor:pointer}
 .steps strong{display:block;margin-bottom:4px;font-size:16.5px;color:var(--cream)}
 .steps span{color:#b0b6bb;font-size:14px;line-height:1.7}
 
+/* ---------- card extras (자료 종류·기호·준비 중) ---------- */
+.card-type{
+  position:absolute;
+  right:12px;
+  top:12px;
+  padding:3px 10px;
+  border-radius:8px;
+  background:var(--text);
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+}
+.media-symbol{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:54px;
+  line-height:1;
+  font-weight:500;
+  color:rgba(21,23,26,.72);
+}
+.open-tool.is-pending{
+  background:#efece4;
+  color:#8a8d90;
+  cursor:default;
+}
+.tool-card.is-pending .card-media{filter:saturate(.45)}
+
+/* ---------- schedule ---------- */
+.schedule-layout{
+  position:relative;
+  width:min(1180px,calc(100% - 48px));
+  margin:0 auto;
+  padding:clamp(28px,4vw,56px) 0 clamp(20px,3vw,36px);
+}
+.schedule-head{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:28px;
+}
+.info-list{
+  display:grid;
+  gap:8px;
+  margin:0;
+  min-width:min(100%,320px);
+}
+.info-list div{
+  display:grid;
+  grid-template-columns:64px minmax(0,1fr);
+  gap:12px;
+  padding:10px 16px;
+  border:1px solid #262b30;
+  border-radius:12px;
+  background:#1a1d21;
+  font-size:14px;
+}
+.info-list dt{color:#8a9198;font-weight:650}
+.info-list dd{margin:0;color:var(--cream);word-break:break-all}
+
+.day-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:14px;
+  margin-top:36px;
+}
+.day-card{
+  display:flex;
+  flex-direction:column;
+  padding:22px 22px 18px;
+  border:1px solid #262b30;
+  border-radius:16px;
+  background:#1a1d21;
+}
+.day-card.is-today{border-color:var(--lime);box-shadow:0 0 0 1px var(--lime) inset}
+.day-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.day-head b{font-size:20px;color:var(--cream);letter-spacing:-.03em}
+.day-head span{color:#8a9198;font-family:"IBM Plex Mono",monospace;font-size:13px}
+.today-badge{
+  margin-left:auto;
+  padding:3px 9px;
+  border-radius:8px;
+  background:var(--lime);
+  color:var(--text);
+  font-family:"IBM Plex Mono",monospace;
+  font-size:10px;
+  font-style:normal;
+  font-weight:600;
+  letter-spacing:.1em;
+}
+.session-list{list-style:none;margin:18px 0 16px;padding:0;display:grid;gap:2px}
+.session-list li{
+  display:grid;
+  grid-template-columns:52px minmax(0,1fr);
+  gap:12px;
+  padding:10px 0;
+  border-top:1px solid #262b30;
+}
+.session-list time{
+  color:var(--lime);
+  font-family:"IBM Plex Mono",monospace;
+  font-size:13px;
+  padding-top:1px;
+}
+.session-list strong{display:block;color:var(--cream);font-size:15px;font-weight:650;line-height:1.5}
+.session-list small{display:block;margin-top:2px;color:#9aa1a7;font-size:12.5px}
+.day-link{
+  margin-top:auto;
+  align-self:flex-start;
+  padding:9px 16px;
+  border:1px solid #3a4046;
+  border-radius:999px;
+  background:transparent;
+  color:var(--cream);
+  font-size:13px;
+  font-weight:700;
+  transition:.18s ease;
+}
+.day-link:hover{border-color:var(--lime);color:var(--lime)}
+
 footer{background:var(--deep)}
 footer div{
   width:min(1180px,calc(100% - 48px));
@@ -500,5 +619,7 @@ footer div{
   .subject-row{grid-template-columns:1fr;gap:8px}
   .subject-row>.row-label{padding-top:0}
   .how-layout{width:calc(100% - 32px)}
+  .schedule-layout{width:calc(100% - 32px)}
+  .day-grid{grid-template-columns:1fr}
   footer div{width:calc(100% - 32px)}
 }

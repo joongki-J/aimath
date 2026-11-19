@@ -1,7 +1,7 @@
 // =========================
-// 내 수학 실험실 — 홈페이지 동작
+// 인공지능 수학 연수 — 홈페이지 동작
 // 이 파일은 고치지 않아도 됩니다.
-// 홈페이지 이름과 앱 목록은 site-config.js에서 관리합니다.
+// 홈페이지 이름, 자료 목록, 일정은 site-config.js에서 관리합니다.
 // =========================
 
 /* ---------- site-config.js 문구 적용 ---------- */
@@ -26,7 +26,8 @@ const els = {
   groups: document.querySelector("#subjectGroups"),
   count: document.querySelector("#toolCount"),
   filteredCount: document.querySelector("#filteredCount"),
-  subjectCount: document.querySelector("#subjectCount"),
+  dayGrid: document.querySelector("#dayGrid"),
+  infoList: document.querySelector("#infoList"),
   empty: document.querySelector("#emptyMessage"),
   modal: document.querySelector("#qrModal"),
   qrTitle: document.querySelector("#qrTitle"),
@@ -61,8 +62,6 @@ function initializeSubjects() {
     rowEl.append(label, chips);
     els.groups.appendChild(rowEl);
   }
-
-  els.subjectCount.textContent = SUBJECT_GROUPS.flatMap(g => g.items).length;
 }
 
 function createSubjectChip(subject) {
@@ -80,8 +79,18 @@ function setSubject(subject) {
   renderTools();
 }
 
+/* ---------- 링크 종류 ---------- */
+
+function isExternal(url) {
+  return /^https?:\/\//i.test(url || "");
+}
+
+function hasLink(tool) {
+  return Boolean(tool.url && tool.url.trim());
+}
+
 function matchesQuery(tool, query) {
-  return [tool.title, tool.subject, tool.description, ...tool.tags]
+  return [tool.title, tool.subject, tool.type || "", tool.description, ...(tool.tags || [])]
     .join(" ")
     .toLowerCase()
     .includes(query);
@@ -116,6 +125,21 @@ function setupAutoThumbnail(card, tool) {
   const img = card.querySelector(".card-thumb");
   const placeholder = card.querySelector(".media-placeholder");
 
+  img.addEventListener("load", () => {
+    img.style.display = "block";
+    placeholder.style.display = "none";
+  });
+
+  // 직접 지정한 썸네일
+  if (tool.thumb) {
+    img.addEventListener("error", () => (img.style.display = "none"));
+    img.src = tool.thumb;
+    return;
+  }
+
+  // 저장소 안의 앱만 thumbnails/폴더이름.png 를 자동으로 찾음
+  if (!hasLink(tool) || isExternal(tool.url)) return;
+
   const folder = toolFolderName(tool);
   const extensions = ["jpg", "png", "jpeg", "webp"];
   let index = 0;
@@ -129,11 +153,6 @@ function setupAutoThumbnail(card, tool) {
 
     img.src = `./thumbnails/${folder}.${extensions[index++]}`;
   }
-
-  img.addEventListener("load", () => {
-    img.style.display = "block";
-    placeholder.style.display = "none";
-  });
 
   img.addEventListener("error", tryNext);
 
@@ -173,22 +192,12 @@ function renderTools() {
     ${String(index + 1).padStart(2, "0")}
   </span>
 
+  ${tool.type ? `<span class="card-type" style="z-index:2">${escapeHtml(tool.type)}</span>` : ""}
+
   <div class="media-placeholder"
        style="position:relative; z-index:1;
               display:grid; place-items:center; gap:10px;">
-
-    <svg viewBox="0 0 24 24" width="30" height="30" fill="none"
-         stroke="rgba(21,23,26,.62)" stroke-width="1.6"
-         stroke-linecap="round" stroke-linejoin="round"
-         aria-hidden="true">
-      <rect x="3" y="4" width="18" height="16" rx="2.5"></rect>
-      <circle cx="8.6" cy="9.6" r="1.5"></circle>
-      <path d="M4 17l4.8-4.6 3.4 3.2 3-2.6L20 17"></path>
-    </svg>
-
-    <span class="media-label">
-      ${escapeHtml(tool.title)} 화면 캡처
-    </span>
+    <span class="media-symbol" aria-hidden="true">${escapeHtml(tool.symbol || "↗")}</span>
   </div>
 </div>
       <div class="card-body">
@@ -196,23 +205,78 @@ function renderTools() {
         <h3>${escapeHtml(tool.title)}</h3>
         <p>${escapeHtml(tool.description)}</p>
         <div class="card-actions">
-          <a class="open-tool" href="${tool.url}">도구 열기 ↗</a>
-          <button class="qr-tool" type="button" aria-label="${escapeHtml(tool.title)} QR 열기">
+          ${hasLink(tool)
+            ? `<a class="open-tool" href="${escapeHtml(tool.url)}"${isExternal(tool.url) ? ' target="_blank" rel="noopener"' : ""}>자료 열기 ↗</a>`
+            : `<span class="open-tool is-pending" aria-disabled="true">링크 준비 중</span>`}
+          ${hasLink(tool) ? `<button class="qr-tool" type="button" aria-label="${escapeHtml(tool.title)} QR 열기">
             <span class="qr-glyph" aria-hidden="true">
               <i class="on"></i><i class="on"></i><i></i>
               <i class="on"></i><i></i><i class="on"></i>
               <i></i><i class="on"></i><i class="on"></i>
             </span>
-          </button>
+          </button>` : ""}
         </div>
       </div>
     `;
-setupAutoThumbnail(card, tool);
-    card.querySelector(".qr-tool").addEventListener("click", () => {
+    if (!hasLink(tool)) card.classList.add("is-pending");
+    setupAutoThumbnail(card, tool);
+    card.querySelector(".qr-tool")?.addEventListener("click", () => {
       openQr(tool.title, new URL(tool.url, window.location.href).href);
     });
 
     els.grid.appendChild(card);
+  });
+}
+
+/* ---------- 연수 일정 ---------- */
+
+function todayString() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+function renderInfo() {
+  if (!els.infoList || typeof INFO === "undefined") return;
+  els.infoList.innerHTML = INFO.map(item => `
+    <div><dt>${escapeHtml(item.label)}</dt><dd>${escapeHtml(item.value)}</dd></div>
+  `).join("");
+}
+
+function renderSchedule() {
+  if (!els.dayGrid || typeof SCHEDULE === "undefined") return;
+  const today = todayString();
+
+  els.dayGrid.innerHTML = "";
+  SCHEDULE.forEach(day => {
+    const isToday = day.date === today;
+    const col = document.createElement("article");
+    col.className = "day-card" + (isToday ? " is-today" : "");
+    col.innerHTML = `
+      <header class="day-head">
+        <b>${escapeHtml(day.day)}</b>
+        <span>${escapeHtml(day.label || day.date)}</span>
+        ${isToday ? '<em class="today-badge">TODAY</em>' : ""}
+      </header>
+      <ol class="session-list">
+        ${(day.sessions || []).map(session => `
+          <li>
+            <time>${escapeHtml(session.time || "")}</time>
+            <div>
+              <strong>${escapeHtml(session.title || "")}</strong>
+              ${session.speaker ? `<small>${escapeHtml(session.speaker)}</small>` : ""}
+            </div>
+          </li>
+        `).join("")}
+      </ol>
+      ${day.subject ? `<button class="day-link" type="button">이날 자료 보기 ↗</button>` : ""}
+    `;
+    col.querySelector(".day-link")?.addEventListener("click", () => {
+      els.search.value = "";
+      setSubject(day.subject);
+      document.querySelector("#tools").scrollIntoView({ behavior: "smooth" });
+    });
+    els.dayGrid.appendChild(col);
   });
 }
 
@@ -288,3 +352,5 @@ applySiteConfig();
 initializeSubjects();
 els.count.textContent = TOOLS.length;
 renderTools();
+renderInfo();
+renderSchedule();
