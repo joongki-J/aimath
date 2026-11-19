@@ -126,6 +126,24 @@ const TOOLS = [
     url: "https://youtu.be/8861RzFOFs8?t=30",
     thumb: "https://i.ytimg.com/vi/8861RzFOFs8/maxresdefault.jpg"
   },
+  {
+    title: "퍼셉트론 논리 연산 실험실",
+    subject: "4단원",
+    type: "실습",
+    symbol: "⊕",
+    description: "퍼셉트론으로 AND·OR·NAND 논리 연산을 만들고, 가중치를 학습시켜 보고, 배타적 논리합(XOR)이 왜 한 층으로는 안 되는지 탐구합니다.",
+    tags: ["퍼셉트론", "가중치", "논리 연산", "XOR", "신경망"],
+    url: "./perceptron/"
+  },
+  {
+    title: "단어별 가중치로 문장 분류하기",
+    subject: "4단원",
+    type: "실습",
+    symbol: "Aa",
+    description: "단어마다 가중치를 주어 문장을 분류합니다. 1장 감성 분석(출력 노드 1개), 2장 주제 분류(출력 노드 3개)로 구성되어 있습니다.",
+    tags: ["가중치", "문장 분류", "감성 분석", "텍스트 데이터", "출력 노드"],
+    url: "./word-weights/"
+  },
   // ===== 5단원 · 인공지능과 수학탐구 (3일차 5~7교시) · 활용 사이트 =====
   {
     title: "5단원 실습자료 1",
