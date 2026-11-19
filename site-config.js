@@ -22,8 +22,8 @@ const SITE = {
   heroHighlight: "수학으로",
   heroLine2: "읽다",
 
-  heroDesc: "3일차 4단원 ‘예측과 최적화’와 5단원 ‘인공지능과 수학탐구’에서 쓰는 발표 자료, 실습 도구, 참고 사이트를 한곳에 모았습니다.",
-  searchPlaceholder: "예: 4단원, 최적화, 경사하강법, 설문"
+  heroDesc: "3일차 4단원 ‘예측과 최적화’와 5단원 ‘인공지능과 수학탐구’에서 쓰는 아이스브레이킹, 경사하강법 실습 앱, 분반별 활동 공유 자료를 한곳에 모았습니다.",
+  searchPlaceholder: "예: 경사하강법, 아이스브레이킹, 1분반"
 };
 
 // ---------------------------------------------------------
@@ -42,25 +42,6 @@ const SITE = {
 // ---------------------------------------------------------
 
 const TOOLS = [
-  // ===== 공통 안내 =====
-  {
-    title: "연수 안내 자료",
-    subject: "공통 안내",
-    type: "안내",
-    symbol: "ⓘ",
-    description: "연수 일정, 장소, 준비물, 숙소 안내를 담은 자료입니다.",
-    tags: ["안내", "일정", "준비물"],
-    url: ""
-  },
-  {
-    title: "연수 만족도 설문",
-    subject: "공통 안내",
-    type: "설문",
-    symbol: "✓",
-    description: "연수가 끝난 뒤 만족도 설문에 참여해 주세요.",
-    tags: ["설문", "만족도"],
-    url: ""
-  },
 
   // ===== 아이스브레이킹 =====
   {
@@ -82,25 +63,7 @@ const TOOLS = [
     url: "https://www.i-am.ai/gradient-descent.html"
   },
 
-  // ===== 4단원 · 예측과 최적화 (3일차 1~4교시) =====
-  {
-    title: "4단원 예측과 최적화 · 발표 자료",
-    subject: "4단원",
-    type: "발표자료",
-    symbol: "∇",
-    description: "3일차 1~4교시 강의 슬라이드입니다.",
-    tags: ["예측과 최적화", "회귀", "경사하강법", "손실함수"],
-    url: ""
-  },
-  {
-    title: "4단원 예측과 최적화 · 실습 자료",
-    subject: "4단원",
-    type: "실습",
-    symbol: "✎",
-    description: "4단원 실습에서 쓰는 활동지, 데이터, 코드 파일입니다.",
-    tags: ["예측과 최적화", "실습", "활동지"],
-    url: ""
-  },
+  // ===== 4단원 · 예측과 최적화 (3일차 1~4교시) · 실습 앱 =====
 
   {
     title: "경사하강법 시뮬레이터",
@@ -130,25 +93,6 @@ const TOOLS = [
     url: "./gd-yaxb/"
   },
 
-  // ===== 5단원 · 인공지능과 수학탐구 (3일차 5~7교시) =====
-  {
-    title: "5단원 인공지능과 수학탐구 · 발표 자료",
-    subject: "5단원",
-    type: "발표자료",
-    symbol: "∑",
-    description: "3일차 5~7교시 강의 슬라이드입니다.",
-    tags: ["인공지능과 수학탐구", "수학탐구", "탐구 주제"],
-    url: ""
-  },
-  {
-    title: "5단원 인공지능과 수학탐구 · 탐구 활동지",
-    subject: "5단원",
-    type: "실습",
-    symbol: "✎",
-    description: "5단원 탐구 활동에서 쓰는 활동지와 자료입니다.",
-    tags: ["인공지능과 수학탐구", "탐구", "활동지"],
-    url: ""
-  },
   // ===== 활동 공유 (분반별 구글 슬라이드) =====
   {
     title: "1분반 활동 공유",
@@ -176,64 +120,6 @@ const TOOLS = [
     description: "3분반 모둠 활동 결과를 함께 정리하고 나누는 구글 슬라이드입니다.",
     tags: ["활동 공유", "3분반", "구글 슬라이드", "수업 아이디어"],
     url: "https://docs.google.com/presentation/d/1ZmhUZ_GvbxG2tOTZMogvGso7VmiTQnsogNJuW9llmhI/edit"
-  },
-
-  // ===== 실습 도구 =====
-  {
-    title: "Google Colab",
-    subject: "실습 도구",
-    type: "사이트",
-    symbol: "▶",
-    description: "설치 없이 브라우저에서 파이썬 코드를 실행하는 노트북 환경입니다.",
-    tags: ["파이썬", "코딩", "노트북"],
-    url: "https://colab.research.google.com/"
-  },
-  {
-    title: "Teachable Machine",
-    subject: "실습 도구",
-    type: "사이트",
-    symbol: "◎",
-    description: "이미지·소리·자세를 학습시켜 분류 모델을 직접 만들어 보는 도구입니다.",
-    tags: ["분류", "머신러닝", "이미지"],
-    url: "https://teachablemachine.withgoogle.com/"
-  },
-  {
-    title: "TensorFlow Playground",
-    subject: "실습 도구",
-    type: "사이트",
-    symbol: "◇",
-    description: "신경망의 층·뉴런·학습률을 바꾸며 분류 경계가 학습되는 과정을 관찰합니다.",
-    tags: ["신경망", "학습률", "경사하강법"],
-    url: "https://playground.tensorflow.org/"
-  },
-  {
-    title: "일차함수 그래프 탐구 (예시 앱)",
-    subject: "실습 도구",
-    type: "앱",
-    symbol: "∕",
-    description: "기울기 a와 y절편 b를 바꾸며 y = ax + b의 그래프를 관찰합니다. 직접 만든 앱을 올리는 예시입니다.",
-    tags: ["일차함수", "기울기", "예시 앱"],
-    url: "./linear-function/"
-  },
-
-  // ===== 참고 사이트 =====
-  {
-    title: "알지오매스",
-    subject: "참고 사이트",
-    type: "사이트",
-    symbol: "△",
-    description: "한국과학창의재단이 운영하는 수학 탐구 플랫폼입니다.",
-    tags: ["수학 소프트웨어", "그래프", "기하"],
-    url: "https://www.algeomath.kr/"
-  },
-  {
-    title: "Desmos 그래핑 계산기",
-    subject: "참고 사이트",
-    type: "사이트",
-    symbol: "∿",
-    description: "함수 그래프와 회귀식을 빠르게 그려 볼 수 있는 계산기입니다.",
-    tags: ["그래프", "회귀", "함수"],
-    url: "https://www.desmos.com/calculator?lang=ko"
   }
 
   // ↓ 새 링크는 위 } 뒤에 쉼표(,)를 찍고 아래처럼 이어 붙이세요.
@@ -250,8 +136,8 @@ const TOOLS = [
 
 // 자료 분류 (버튼 줄). 이름을 바꾸면 위 TOOLS의 subject도 똑같이 바꿔 주세요.
 const SUBJECT_GROUPS = [
-  { label: "단원별", items: ["4단원", "5단원"] },
-  { label: "종류별", items: ["아이스브레이킹", "활동 공유", "공통 안내", "실습 도구", "참고 사이트"] }
+  { label: "단원별", items: ["4단원"] },
+  { label: "종류별", items: ["아이스브레이킹", "활동 공유"] }
 ];
 
 // ---------------------------------------------------------
@@ -290,7 +176,7 @@ const SCHEDULE = [
     sessions: [
       { time: "09:00", end: "12:50", title: "4단원 예측과 최적화", note: "1~4교시", subject: "4단원" },
       { time: "13:00", end: "14:00", title: "점심시간" },
-      { time: "14:00", end: "16:50", title: "5단원 인공지능과 수학탐구", note: "5~7교시", subject: "5단원" },
+      { time: "14:00", end: "16:50", title: "5단원 인공지능과 수학탐구", note: "5~7교시" },
       { time: "17:00", end: "17:50", title: "수업 아이디어 공유 및 토의·토론", note: "8교시", subject: "활동 공유" }
     ]
   }
