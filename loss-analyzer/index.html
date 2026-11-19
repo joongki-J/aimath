@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L(a) 손실함수 분석기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)'], ['$', '$']],
+      displayMath: [['\\[', '\\]']]
+    },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+  :root {
+    --bg:           #fcf9ee;
+    --parchment:    #f7f2e0;
+    --surface:      #fffef8;
+    --surface2:     #f5f0de;
+    --border:       #c9bfa0;
+    --border2:      #b0a882;
+    --accent:       #567c5d;
+    --accent-dark:  #2c3e2e;
+    --accent-light: #d4e8d6;
+    --accent-pale:  #edf5ee;
+    --brown:        #7a5c3a;
+    --brown-light:  #e8dcc8;
+    --text:         #2c3e2e;
+    --muted:        #7a7260;
+    --danger:       #8b3a2e;
+    --danger-light: #f5e8e4;
+    --shadow:       0 2px 8px rgba(44,62,46,0.08), 0 8px 24px rgba(44,62,46,0.05);
+    --shadow-sm:    0 1px 4px rgba(44,62,46,0.07);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: var(--bg);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='none' stroke='%23567c5d' stroke-width='0.4' opacity='0.12'%3E%3Cellipse cx='20' cy='30' rx='14' ry='22' transform='rotate(-20 20 30)'/%3E%3Cline x1='20' y1='8' x2='20' y2='52' stroke-width='0.5'/%3E%3Cline x1='20' y1='20' x2='30' y2='28'/%3E%3Cline x1='20' y1='30' x2='32' y2='36'/%3E%3Cline x1='20' y1='40' x2='28' y2='46'/%3E%3Cline x1='20' y1='20' x2='10' y2='28'/%3E%3Cline x1='20' y1='30' x2='8' y2='36'/%3E%3Cellipse cx='85' cy='80' rx='10' ry='17' transform='rotate(15 85 80)'/%3E%3Cline x1='85' y1='63' x2='85' y2='97' stroke-width='0.5'/%3E%3Cline x1='85' y1='72' x2='93' y2='78'/%3E%3Cline x1='85' y1='82' x2='94' y2='87'/%3E%3Cline x1='85' y1='72' x2='77' y2='78'/%3E%3Cline x1='85' y1='82' x2='76' y2='87'/%3E%3Ccircle cx='60' cy='10' r='3' fill='%23567c5d' opacity='0.15'/%3E%3Ccircle cx='100' cy='50' r='2' fill='%237a5c3a' opacity='0.12'/%3E%3Ccircle cx='10' cy='90' r='2.5' fill='%23567c5d' opacity='0.1'/%3E%3C/g%3E%3C/svg%3E");
+    color: var(--text);
+    font-family: 'Noto Serif KR', 'Lora', Georgia, serif;
+    min-height: 100vh;
+    padding: 0 20px 80px;
+  }
+
+  /* ═══ HEADER ═══ */
+  .hero {
+    text-align: center;
+    padding: 60px 20px 44px;
+    position: relative;
+  }
+
+  /* Decorative vine frame top */
+  .hero::before {
+    content: '';
+    display: block;
+    width: 340px;
+    height: 3px;
+    margin: 0 auto 28px;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      var(--border) 15%,
+      var(--accent) 35%,
+      var(--accent-dark) 50%,
+      var(--accent) 65%,
+      var(--border) 85%,
+      transparent 100%);
+    border-radius: 2px;
+  }
+
+  .hero-label {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 0.88rem;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+    opacity: 0.85;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', 'Noto Serif KR', serif;
+    font-size: clamp(1.9rem, 4.5vw, 2.9rem);
+    font-weight: 900;
+    color: var(--accent-dark);
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 0.85rem;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+
+  /* Decorative vine frame bottom */
+  .hero::after {
+    content: '';
+    display: block;
+    width: 200px;
+    height: 2px;
+    margin: 24px auto 0;
+    background: linear-gradient(90deg,
+      transparent, var(--accent-light), var(--accent), var(--accent-light), transparent);
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: var(--accent);
+    font-family: 'Noto Serif KR', serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .back-link:hover { text-decoration: underline; }
+
+  /* ═══ CONTAINER ═══ */
+  .container {
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  /* ═══ CARDS ═══ */
+  .card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 18px 4px 18px 4px; /* organic asymmetric */
+    padding: 28px 32px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* subtle leaf watermark on cards */
+  .card::after {
+    content: '';
+    position: absolute;
+    top: -10px; right: -10px;
+    width: 80px; height: 80px;
+    background: radial-gradient(circle, rgba(86,124,93,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1.5px solid var(--accent-light);
+    position: relative;
+  }
+
+  .card-header-icon {
+    font-size: 1.3rem;
+    line-height: 1;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--accent-dark);
+    letter-spacing: 0.01em;
+  }
+
+  .card-title-hand {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-weight: 400;
+    margin-left: 6px;
+    opacity: 0.8;
+  }
+
+  /* ═══ TIP GRID ═══ */
+  .tip-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 560px) { .tip-grid { grid-template-columns: 1fr; } }
+
+  .tip-item {
+    background: var(--parchment);
+    border: 1px solid var(--border);
+    border-radius: 12px 3px 12px 3px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 11px;
+    align-items: flex-start;
+  }
+
+  .tip-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+
+  .tip-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent-dark);
+    margin-bottom: 4px;
+  }
+
+  .tip-desc {
+    font-family: 'Lora', serif;
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .tip-desc code {
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.67rem;
+    white-space: nowrap;
+  }
+
+  /* ═══ SHEET TABLE ═══ */
+  .sheet {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .sheet thead tr {
+    background: var(--parchment);
+    border-radius: 8px;
+  }
+
+  .sheet th {
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.82rem;
+    color: var(--accent);
+    padding: 10px 12px;
+    letter-spacing: 0.04em;
+    border-bottom: 2px solid var(--accent-light);
+    font-weight: 700;
+  }
+
+  .sheet td {
+    padding: 3px 5px;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .row-num {
+    text-align: center;
+    color: var(--border2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    width: 32px;
+    user-select: none;
+  }
+
+  .data-input {
+    width: 100%;
+    min-height: 38px;
+    background: rgba(255,254,248,0.75);
+    border: 1.5px solid transparent;
+    border-radius: 10px 3px 10px 3px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.92rem;
+    padding: 8px 12px;
+    text-align: center;
+    transition: border-color 0.18s, background 0.18s, box-shadow 0.18s, transform 0.18s;
+    outline: none;
+  }
+
+  .data-input:hover  { border-color: var(--border); background: var(--parchment); }
+  .data-input:focus  {
+    border-color: var(--accent);
+    background: var(--accent-pale);
+    box-shadow: 0 0 0 3px rgba(86,124,93,0.16);
+  }
+  .data-input.drag-highlight { border-color: var(--accent); background: var(--accent-light); }
+
+  /* ═══ MODEL SELECTOR ═══ */
+  .model-panel {
+    background: linear-gradient(135deg, rgba(237,245,238,0.95), rgba(247,242,224,0.85));
+    border: 1.5px solid var(--accent-light);
+    border-radius: 14px 4px 14px 4px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .model-panel-title {
+    font-family: 'Noto Serif KR', 'Lora', serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent-dark);
+    white-space: nowrap;
+  }
+
+  .model-switch {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .model-option {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .model-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .model-option span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 108px;
+    padding: 8px 14px;
+    border: 1.5px solid var(--border2);
+    border-radius: 20px;
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', 'Noto Serif KR', monospace;
+    font-size: 0.78rem;
+    transition: all 0.18s;
+  }
+
+  .model-option input:checked + span {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(86,124,93,0.24);
+  }
+
+  .model-option:hover span {
+    border-color: var(--accent);
+    color: var(--accent-dark);
+  }
+
+  .model-option input:checked:hover + span {
+    color: #fff;
+  }
+
+  /* ═══ BUTTONS ═══ */
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    align-items: center;
+  }
+
+  .btn {
+    font-family: 'Lora', serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 9px 18px;
+    border: 1.5px solid var(--border2);
+    border-radius: 20px;
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--muted);
+    transition: all 0.18s;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .btn:hover {
+    border-color: var(--accent);
+    color: var(--accent-dark);
+    background: var(--accent-pale);
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    font-weight: 700;
+    margin-left: auto;
+    padding: 9px 26px;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(86,124,93,0.3);
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-dark);
+    border-color: var(--accent-dark);
+    box-shadow: 0 4px 12px rgba(44,62,46,0.35);
+  }
+
+  .del-btn {
+    background: none;
+    border: none;
+    color: var(--border2);
+    cursor: pointer;
+    font-size: 0.78rem;
+    padding: 4px 8px;
+    transition: color 0.15s, background 0.15s;
+    border-radius: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .del-btn:hover { color: var(--danger); background: var(--danger-light); }
+
+  /* ═══ DRAG HANDLE ═══ */
+  .cell-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .drag-handle {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    width: 7px;
+    height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: crosshair;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+
+  .cell-wrap:hover .drag-handle,
+  .data-input:focus ~ .drag-handle { opacity: 1; }
+
+  /* ═══ RESULT BOX ═══ */
+  .result-box {
+    background: var(--parchment);
+    border: 1.5px solid var(--border);
+    border-radius: 12px 3px 12px 3px;
+    padding: 22px 26px;
+    min-height: 80px;
+    font-size: 0.88rem;
+    line-height: 2;
+  }
+
+  .result-box.has-result {
+    border-color: var(--accent);
+    background: var(--accent-pale);
+  }
+
+  .formula-section { margin-bottom: 24px; }
+
+  .formula-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.82rem;
+    color: var(--accent);
+    font-weight: 700;
+    font-style: italic;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.01em;
+  }
+
+  .formula-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent-light), transparent);
+  }
+
+  .formula-line {
+    margin: 5px 0;
+    line-height: 2;
+    font-size: 0.9rem;
+  }
+
+  .math-display {
+    overflow-x: auto;
+    padding: 4px 2px 6px;
+  }
+
+  .math-note {
+    font-family: 'Noto Serif KR', 'Lora', serif;
+    color: var(--muted);
+    font-size: 0.78rem;
+    line-height: 1.7;
+    margin-top: 4px;
+  }
+
+  .result-box .MathJax {
+    color: var(--text) !important;
+  }
+
+  .kw  { color: var(--accent-dark); font-weight: 600; }
+  .val { color: var(--brown); font-weight: 500; }
+  .op  { color: #4a5549; }
+  .cmt {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  /* Big formula highlight */
+  .big-formula-wrap {
+    position: relative;
+    margin: 8px 0 14px;
+  }
+
+  .big-formula {
+    background: linear-gradient(135deg, #edf5ee 0%, #f0ede0 100%);
+    border: 1.5px solid var(--accent);
+    border-left: 4px solid var(--accent-dark);
+    padding: 14px 118px 14px 20px;
+    border-radius: 0 14px 14px 0;
+    line-height: 1.8;
+    min-height: 66px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: auto;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .big-formula .MathJax {
+    font-size: 1.16rem !important;
+  }
+
+  .copy-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Lora', serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 6px 13px;
+    border: 1.5px solid var(--border2);
+    border-radius: 14px;
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--muted);
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+
+  .copy-btn:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent-dark); }
+  .copy-btn.copied { background: var(--accent-light); border-color: var(--accent); color: var(--accent-dark); }
+
+  /* Coefficient cards */
+  .coeff-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  @media (max-width: 540px) { .coeff-grid { grid-template-columns: 1fr; } }
+
+  .coeff-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px 3px 10px 3px;
+    padding: 11px 14px;
+  }
+
+  .coeff-label {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 0.72rem;
+    color: var(--accent);
+    margin-bottom: 4px;
+    font-weight: 400;
+  }
+
+  .coeff-val {
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--brown);
+    font-weight: 500;
+    font-size: 0.78rem;
+  }
+
+  .empty-msg {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.85rem;
+    letter-spacing: 0.01em;
+  }
+
+  .error-msg {
+    font-family: 'Lora', serif;
+    font-size: 0.75rem;
+    color: var(--danger);
+    background: var(--danger-light);
+    padding: 11px 16px;
+    border-radius: 8px;
+    border: 1px solid #d9a89a;
+  }
+
+  /* ═══ TOAST ═══ */
+  .paste-toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: var(--surface);
+    border: 1.5px solid var(--accent);
+    color: var(--accent-dark);
+    font-family: 'Lora', serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 10px 22px;
+    border-radius: 20px;
+    opacity: 0;
+    transition: all 0.22s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 300;
+    box-shadow: var(--shadow);
+  }
+
+  .paste-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ═══ DIVIDER ═══ */
+  .eco-divider {
+    text-align: center;
+    color: var(--accent-light);
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+    margin: 4px 0 18px;
+    user-select: none;
+  }
+
+  @media (max-width: 560px) {
+    body { padding: 0 14px 56px; }
+    .hero { padding: 42px 10px 30px; }
+    .card { padding: 22px 18px; }
+    .sheet th { padding: 9px 6px; }
+    .sheet td { padding: 4px 3px; }
+    .big-formula { padding: 14px 18px 56px; justify-content: flex-start; }
+    .copy-btn { top: auto; bottom: 12px; right: 12px; transform: none; }
+    .model-panel { align-items: flex-start; flex-direction: column; }
+    .model-switch { width: 100%; justify-content: flex-start; }
+    .model-option span { min-width: 104px; }
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { animation: fadeSlideIn 0.32s ease; }
+</style>
+</head>
+<body>
+
+<div class="paste-toast" id="pasteToast"></div>
+
+<div class="container">
+
+  <a class="back-link" href="../#tools">← 연수 자료실</a>
+
+  <!-- HERO HEADER -->
+  <div class="hero">
+    <h1>손실함수 분석기</h1>
+    <p class="subtitle" id="heroSubtitle">y = ax와 y = ax + b 추세선을 선택해 L(a) 또는 L(a,b)를 구합니다</p>
+  </div>
+
+  <!-- 사용법 안내 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-header-icon">🌿</span>
+      <span class="card-title">사용 방법 <span class="card-title-hand">— how to use</span></span>
+    </div>
+    <div class="tip-grid">
+      <div class="tip-item">
+        <div class="tip-icon">✏️</div>
+        <div>
+          <div class="tip-title">직접 입력</div>
+          <div class="tip-desc">모형을 <code>y=ax</code> 또는 <code>y=ax+b</code> 중에서 고른 뒤, x, y 칸에 숫자를 입력하세요. 입력 후 방향키로 셀을 이동할 수 있습니다.</div>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">📋</div>
+        <div>
+          <div class="tip-title">엑셀 붙여넣기</div>
+          <div class="tip-desc">엑셀에서 x, y 두 열을 복사한 뒤, 표 밖 빈 공간을 클릭하고 <code>Ctrl+V</code>를 누르면 데이터가 자동으로 채워집니다.</div>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">🔽</div>
+        <div>
+          <div class="tip-title">드래그 채우기</div>
+          <div class="tip-desc">셀에 마우스를 올리면 우하단에 <span style="color:var(--accent);font-weight:700">●</span> 핸들이 나타납니다. 아래로 드래그하면 숫자가 1씩 증가하며 자동 채워집니다.</div>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">🍃</div>
+        <div>
+          <div class="tip-title">수식 복사</div>
+          <div class="tip-desc">계산 후 식 옆 <code>📋 복사</code> 버튼을 클릭하면 분수계수 일반형 수식이 클립보드에 저장됩니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 데이터 입력 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-header-icon">🌱</span>
+      <span class="card-title">데이터 입력 시트 <span class="card-title-hand">— data sheet</span></span>
+    </div>
+    <div class="model-panel">
+      <div class="model-panel-title">추세선 모형 선택</div>
+      <div class="model-switch" role="radiogroup" aria-label="추세선 모형 선택">
+        <label class="model-option">
+          <input type="radio" name="modelType" value="ax" checked onchange="updateModelUI()">
+          <span>y = ax</span>
+        </label>
+        <label class="model-option">
+          <input type="radio" name="modelType" value="axb" onchange="updateModelUI()">
+          <span>y = ax + b</span>
+        </label>
+      </div>
+    </div>
+    <table class="sheet">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>x</th>
+          <th>y</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="dataRows"></tbody>
+    </table>
+    <div class="btn-row">
+      <button class="btn" onclick="addRow()">+ 행 추가</button>
+      <button class="btn-primary btn" id="calcBtn" onclick="calculate()">L(a) 계산 →</button>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-header-icon">🌾</span>
+      <span class="card-title"><span id="resultTitleText">L(a) 결과</span> <span class="card-title-hand">— result</span></span>
+    </div>
+    <div class="result-box" id="resultBox">
+      <span class="empty-msg">🍂 데이터를 입력하고 계산 버튼을 눌러주세요</span>
+    </div>
+  </div>
+
+  <div class="eco-divider">· · · 🌿 · · ·</div>
+
+</div><!-- /container -->
+
+<script>
+let rowCount = 0;
+let lastFormulaText = '';
+const EPS = 1e-10;
+
+function escapeAttr(v) {
+  return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function getModelType() {
+  const selected = document.querySelector('input[name="modelType"]:checked');
+  return selected ? selected.value : 'ax';
+}
+
+function updateModelUI() {
+  const model = getModelType();
+  const isAB = model === 'axb';
+  const subtitle = document.getElementById('heroSubtitle');
+  const calcBtn = document.getElementById('calcBtn');
+  const resultTitle = document.getElementById('resultTitleText');
+  const resultBox = document.getElementById('resultBox');
+
+  if (subtitle) subtitle.textContent = 'y = ax와 y = ax + b 추세선을 선택해 L(a) 또는 L(a,b)를 구합니다';
+  if (calcBtn) calcBtn.textContent = isAB ? 'L(a,b) 계산 →' : 'L(a) 계산 →';
+  if (resultTitle) resultTitle.textContent = isAB ? 'L(a,b) 결과' : 'L(a) 결과';
+
+  lastFormulaText = '';
+  if (resultBox && !resultBox.classList.contains('has-result')) return;
+  if (resultBox) {
+    resultBox.innerHTML = '<span class="empty-msg">🍂 데이터를 입력하고 계산 버튼을 눌러주세요</span>';
+    resultBox.className = 'result-box';
+  }
+}
+
+function addRow(xVal = '', yVal = '') {
+  xVal = escapeAttr(xVal);
+  yVal = escapeAttr(yVal);
+  rowCount++;
+  const tbody = document.getElementById('dataRows');
+  const tr = document.createElement('tr');
+  tr.id = `row-${rowCount}`;
+  tr.innerHTML = `
+    <td class="row-num">${rowCount}</td>
+    <td>
+      <div class="cell-wrap">
+        <input class="data-input" type="text" inputmode="decimal" autocomplete="off" placeholder="" value="${xVal}" data-col="x">
+        <div class="drag-handle" data-col="x"></div>
+      </div>
+    </td>
+    <td>
+      <div class="cell-wrap">
+        <input class="data-input" type="text" inputmode="decimal" autocomplete="off" placeholder="" value="${yVal}" data-col="y">
+        <div class="drag-handle" data-col="y"></div>
+      </div>
+    </td>
+    <td><button class="del-btn" onclick="delRow(${rowCount})" title="행 삭제">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+  bindDragHandles(tr);
+  renumberRows();
+}
+
+function delRow(id) {
+  const row = document.getElementById(`row-${id}`);
+  if (row) row.remove();
+  renumberRows();
+}
+
+function renumberRows() {
+  getAllRows().forEach((row, i) => {
+    const num = row.querySelector('.row-num');
+    if (num) num.textContent = i + 1;
+  });
+}
+
+function parseStrictNumber(str) {
+  const normalized = String(str).trim().replace(/,/g, '');
+  if (normalized === '') return null;
+  if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized)) return NaN;
+  return Number(normalized);
+}
+
+function getData() {
+  const rows = document.querySelectorAll('#dataRows tr');
+  const data = [];
+  let valid = true;
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const xStr = inputs[0].value;
+    const yStr = inputs[1].value;
+    if (xStr.trim() === '' || yStr.trim() === '') return;
+    const x = parseStrictNumber(xStr);
+    const y = parseStrictNumber(yStr);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) { valid = false; return; }
+    data.push({ x, y });
+  });
+  return valid ? data : null;
+}
+
+function fmt(n) {
+  if (Math.abs(n) < EPS) n = 0;
+  if (Number.isInteger(n)) return String(n);
+  return n.toFixed(4).replace(/\.?0+$/, '');
+}
+
+function fmtTex(n) {
+  const s = fmt(n);
+  return s.startsWith('-') ? `(${s})` : s;
+}
+
+function texCoeff(absCoeff, variable = '', keepOne = false) {
+  if (Math.abs(absCoeff - 1) < EPS && variable && !keepOne) return variable;
+  return `${fmt(absCoeff)}${variable}`;
+}
+
+function textCoeff(absCoeff, variable = '') {
+  if (!variable) return fmt(absCoeff);
+  return `${fmt(absCoeff)}*${variable}`;
+}
+
+function buildPolynomialTex(terms, options = {}) {
+  const { fractionDenominator = null, keepFractionOne = true, keepOne = false } = options;
+  const pieces = [];
+  terms.forEach(({ coeff, variable }) => {
+    if (Math.abs(coeff) < EPS) return;
+    const sign = coeff >= 0 ? '+' : '-';
+    const absCoeff = Math.abs(coeff);
+    let body;
+    if (fractionDenominator) {
+      body = `\\frac{${fmt(absCoeff)}}{${fractionDenominator}}${variable || ''}`;
+      if (!keepFractionOne && Math.abs(absCoeff - fractionDenominator) < EPS && variable) body = variable;
+    } else {
+      body = texCoeff(absCoeff, variable || '', keepOne);
+    }
+    if (pieces.length === 0) pieces.push(sign === '-' ? `-${body}` : body);
+    else pieces.push(`${sign} ${body}`);
+  });
+  return pieces.length ? pieces.join(' ') : '0';
+}
+
+function buildPolynomialText(terms) {
+  const pieces = [];
+  terms.forEach(({ coeff, variable }) => {
+    if (Math.abs(coeff) < EPS) return;
+    const sign = coeff >= 0 ? '+' : '-';
+    const body = textCoeff(Math.abs(coeff), variable || '');
+    if (pieces.length === 0) pieces.push(sign === '-' ? `-${body}` : body);
+    else pieces.push(`${sign} ${body}`);
+  });
+  return pieces.length ? pieces.join(' ') : '0';
+}
+
+function buildPolynomialFractionText(terms, denominator) {
+  const pieces = [];
+  terms.forEach(({ coeff, variable }) => {
+    if (Math.abs(coeff) < EPS) return;
+    const sign = coeff >= 0 ? '+' : '-';
+    const absCoeff = Math.abs(coeff);
+    let body;
+    if (Math.abs(denominator - 1) < EPS) {
+      body = textCoeff(absCoeff, variable || '');
+    } else if (variable) {
+      body = `(${fmt(absCoeff)}/${fmt(denominator)})*${variable}`;
+    } else {
+      body = `${fmt(absCoeff)}/${fmt(denominator)}`;
+    }
+    if (pieces.length === 0) pieces.push(sign === '-' ? `-${body}` : body);
+    else pieces.push(`${sign} ${body}`);
+  });
+  return pieces.length ? pieces.join(' ') : '0';
+}
+
+function signedCenterTex(value) {
+  // a - value 꼴을 a ± |value| 꼴로 표현합니다.
+  const sign = value >= 0 ? '-' : '+';
+  return `a ${sign} ${fmt(Math.abs(value))}`;
+}
+
+function fractionCenterTex(numerator, denominator) {
+  const sign = numerator >= 0 ? '-' : '+';
+  return `a ${sign} \\frac{${fmt(Math.abs(numerator))}}{${fmt(denominator)}}`;
+}
+
+function gcdInt(a, b) {
+  a = Math.abs(Math.round(a));
+  b = Math.abs(Math.round(b));
+  while (b) {
+    const t = b;
+    b = a % b;
+    a = t;
+  }
+  return a || 1;
+}
+
+function isNearlyInteger(n) {
+  return Math.abs(n - Math.round(n)) < EPS;
+}
+
+function fractionParts(numerator, denominator) {
+  if (Math.abs(numerator) < EPS) return { sign: 1, body: '0', isZero: true };
+  if (Math.abs(denominator) < EPS) return { sign: 1, body: fmt(numerator), isZero: false };
+
+  let sign = numerator * denominator < 0 ? -1 : 1;
+  let num = Math.abs(numerator);
+  let den = Math.abs(denominator);
+
+  if (isNearlyInteger(num) && isNearlyInteger(den)) {
+    num = Math.round(num);
+    den = Math.round(den);
+    const g = gcdInt(num, den);
+    num /= g;
+    den /= g;
+    return {
+      sign,
+      body: den === 1 ? String(num) : `\\frac{${num}}{${den}}`,
+      isZero: false,
+      isOne: num === den
+    };
+  }
+
+  return {
+    sign,
+    body: `\\frac{${fmt(num)}}{${fmt(den)}}`,
+    isZero: false,
+    isOne: Math.abs(num - den) < EPS
+  };
+}
+
+function signedFractionCenterTex(numerator, denominator) {
+  const frac = fractionParts(numerator, denominator);
+  if (frac.isZero) return 'a';
+  return frac.sign >= 0 ? `a - ${frac.body}` : `a + ${frac.body}`;
+}
+
+function signedFractionTermTex(numerator, denominator) {
+  const frac = fractionParts(numerator, denominator);
+  if (frac.isZero) return '';
+  return frac.sign >= 0 ? `+ ${frac.body}` : `- ${frac.body}`;
+}
+
+function coefficientSquareTermTex(numerator, denominator, squareBody) {
+  const frac = fractionParts(numerator, denominator);
+  if (frac.isZero) return '';
+  const sign = frac.sign < 0 ? '-' : '';
+  const coeff = frac.body === '1' ? '' : frac.body;
+  return `${sign}${coeff}${squareBody}`;
+}
+
+function errorTermTexA({ x, y }) {
+  const yPart = fmtTex(y);
+  if (Math.abs(x) < EPS) return `\\left(${yPart}\\right)^2`;
+  const sign = x >= 0 ? '-' : '+';
+  return `\\left(${yPart}${sign}${texCoeff(Math.abs(x), 'a')}\\right)^2`;
+}
+
+function errorTermTexAB({ x, y }) {
+  const yPart = fmtTex(y);
+  let xPart = '';
+  if (Math.abs(x) >= EPS) {
+    const sign = x >= 0 ? '-' : '+';
+    xPart = `${sign}${texCoeff(Math.abs(x), 'a')}`;
+  }
+  return `\\left(${yPart}${xPart}-b\\right)^2`;
+}
+
+function renderMath(box) {
+  if (window.MathJax && window.MathJax.typesetPromise) {
+    MathJax.typesetPromise([box]);
+  }
+}
+
+function showError(message) {
+  const box = document.getElementById('resultBox');
+  box.innerHTML = `<span class="error-msg">⚠ ${message}</span>`;
+  box.className = 'result-box';
+}
+
+function calculate() {
+  const data = getData();
+  if (!data) {
+    showError('유효하지 않은 입력값이 있습니다. 숫자만 입력해주세요.');
+    return;
+  }
+  if (data.length === 0) {
+    const box = document.getElementById('resultBox');
+    box.innerHTML = '<span class="empty-msg">🍂 데이터를 1개 이상 입력하세요.</span>';
+    box.className = 'result-box';
+    return;
+  }
+
+  if (getModelType() === 'axb') calculateAXB(data);
+  else calculateAX(data);
+}
+
+function calculateAX(data) {
+  const box = document.getElementById('resultBox');
+  const n = data.length;
+  const sumX2 = data.reduce((s, d) => s + d.x ** 2, 0);
+  const sumXY = data.reduce((s, d) => s + d.x * d.y, 0);
+  const sumY2 = data.reduce((s, d) => s + d.y ** 2, 0);
+
+  const A = sumX2 / n;
+  const D = -2 * sumXY / n;
+  const C = sumY2 / n;
+
+  const finalTerms = [
+    { coeff: A, variable: 'a^2' },
+    { coeff: D, variable: 'a' },
+    { coeff: C, variable: '' }
+  ];
+  lastFormulaText = `L(a) = ${buildPolynomialFractionText([
+    { coeff: sumX2, variable: 'a²' },
+    { coeff: -2 * sumXY, variable: 'a' },
+    { coeff: sumY2, variable: '' }
+  ], n)}`;
+
+  const termTex = data.map(errorTermTexA).join(' + ');
+  const expandedInsideTex = buildPolynomialTex([
+    { coeff: sumX2, variable: 'a^2' },
+    { coeff: -2 * sumXY, variable: 'a' },
+    { coeff: sumY2, variable: '' }
+  ]);
+  const fractionalGeneralTex = buildPolynomialTex([
+    { coeff: sumX2, variable: 'a^2' },
+    { coeff: -2 * sumXY, variable: 'a' },
+    { coeff: sumY2, variable: '' }
+  ], { fractionDenominator: n });
+  const finalTex = buildPolynomialTex(finalTerms);
+
+  let completeSquareTex = '';
+  let completeSquareNote = '';
+  if (Math.abs(sumX2) >= EPS) {
+    const exactKNum = sumX2 * sumY2 - sumXY * sumXY;
+    const exactKDen = n * sumX2;
+    const squareBody = `\\left(${signedFractionCenterTex(sumXY, sumX2)}\\right)^2`;
+    const exactSquare = `${coefficientSquareTermTex(sumX2, n, squareBody)} ${signedFractionTermTex(exactKNum, exactKDen)}`.trim();
+    completeSquareTex = `\\\\[4pt]
+      &=${exactSquare}`;
+    completeSquareNote = '완전제곱식은 소수 대신 정확한 분수 형태로만 제시했습니다.';
+  } else {
+    completeSquareTex = '';
+    completeSquareNote = 'a²의 계수가 0이어서 완전제곱식 정리는 생략했습니다.';
+  }
+
+
+  let html = '<div class="fade-in">';
+  html += `<div class="formula-section">
+    <div class="formula-label">🌿 손실함수 정의</div>
+    <div class="math-display">\\[
+      L(a)=\\frac{1}{${n}}\\sum_{i=1}^{${n}}\\left(y_i-ax_i\\right)^2
+    \\]</div>
+    <div class="math-note">오차 제곱의 평균으로 손실함수를 정의합니다.</div>
+  </div>`;
+
+  html += `<div class="formula-section">
+    <div class="formula-label">🌱 각 항 전개</div>
+    <div class="math-display">\\[
+      \\begin{aligned}
+      L(a)
+      &=\\frac{1}{${n}}\\left[${termTex}\\right]\\\\[4pt]
+      &=\\frac{1}{${n}}\\left(${expandedInsideTex}\\right)\\\\[4pt]
+      &=\\frac{${expandedInsideTex}}{${n}}\\\\[4pt]
+      &=${fractionalGeneralTex}
+      ${completeSquareTex}
+      \\end{aligned}
+    \\]</div>
+    <div class="math-note">각 항을 전개한 뒤, 분수 형태의 일반형과 완전제곱식으로 정리했습니다. ${completeSquareNote}</div>
+  </div>`;
+
+  html += `<div class="formula-section">
+    <div class="formula-label">🍃 정리: a에 대한 이차함수</div>
+    <div class="big-formula-wrap">
+      <div class="big-formula">\\[
+        L(a)=${fractionalGeneralTex}
+      \\]</div>
+      <button class="copy-btn" id="copyBtn" onclick="copyFormula()">📋 복사</button>
+    </div>
+  </div>`;
+
+  html += '</div>';
+  box.innerHTML = html;
+  box.className = 'result-box has-result';
+  renderMath(box);
+}
+
+function calculateAXB(data) {
+  const box = document.getElementById('resultBox');
+  const n = data.length;
+  const sumX = data.reduce((s, d) => s + d.x, 0);
+  const sumY = data.reduce((s, d) => s + d.y, 0);
+  const sumX2 = data.reduce((s, d) => s + d.x ** 2, 0);
+  const sumXY = data.reduce((s, d) => s + d.x * d.y, 0);
+  const sumY2 = data.reduce((s, d) => s + d.y ** 2, 0);
+
+  const A = sumX2 / n;
+  const B = 1;
+  const AB = 2 * sumX / n;
+  const DA = -2 * sumXY / n;
+  const DB = -2 * sumY / n;
+  const C = sumY2 / n;
+
+  const innerTerms = [
+    { coeff: sumX2, variable: 'a^2' },
+    { coeff: n, variable: 'b^2' },
+    { coeff: 2 * sumX, variable: 'ab' },
+    { coeff: -2 * sumXY, variable: 'a' },
+    { coeff: -2 * sumY, variable: 'b' },
+    { coeff: sumY2, variable: '' }
+  ];
+  const finalTermsTex = [
+    { coeff: A, variable: 'a^2' },
+    { coeff: B, variable: 'b^2' },
+    { coeff: AB, variable: 'ab' },
+    { coeff: DA, variable: 'a' },
+    { coeff: DB, variable: 'b' },
+    { coeff: C, variable: '' }
+  ];
+  const finalTermsText = [
+    { coeff: A, variable: 'a²' },
+    { coeff: B, variable: 'b²' },
+    { coeff: AB, variable: 'a*b' },
+    { coeff: DA, variable: 'a' },
+    { coeff: DB, variable: 'b' },
+    { coeff: C, variable: '' }
+  ];
+
+  lastFormulaText = `L(a,b) = ${buildPolynomialFractionText([
+    { coeff: sumX2, variable: 'a²' },
+    { coeff: n, variable: 'b²' },
+    { coeff: 2 * sumX, variable: 'a*b' },
+    { coeff: -2 * sumXY, variable: 'a' },
+    { coeff: -2 * sumY, variable: 'b' },
+    { coeff: sumY2, variable: '' }
+  ], n)}`;
+
+  const termTex = data.map(errorTermTexAB).join(' + ');
+  const expandedInsideTex = buildPolynomialTex(innerTerms);
+  const fractionalGeneralTex = buildPolynomialTex(innerTerms, { fractionDenominator: n });
+  const finalTex = buildPolynomialTex(finalTermsTex);
+
+  let html = '<div class="fade-in">';
+  html += `<div class="formula-section">
+    <div class="formula-label">🌿 손실함수 정의</div>
+    <div class="math-display">\\[
+      L(a,b)=\\frac{1}{${n}}\\sum_{i=1}^{${n}}\\left(y_i-(ax_i+b)\\right)^2
+    \\]</div>
+    <div class="math-note">절편 b를 포함하여 예측값을 ax+b로 두고 손실함수를 계산합니다.</div>
+  </div>`;
+
+  html += `<div class="formula-section">
+    <div class="formula-label">🌱 각 항 전개</div>
+    <div class="math-display">\\[
+      \\begin{aligned}
+      L(a,b)
+      &=\\frac{1}{${n}}\\left[${termTex}\\right]\\\\[4pt]
+      &=\\frac{1}{${n}}\\left(${expandedInsideTex}\\right)\\\\[4pt]
+      &=\\frac{${expandedInsideTex}}{${n}}\\\\[4pt]
+      &=${fractionalGeneralTex}
+      \\end{aligned}
+    \\]</div>
+    <div class="math-note">L(a,b)는 a와 b가 함께 나타나는 이변수 이차식이므로, 여기서는 완전제곱식 변환은 생략하고 일반형까지 정리했습니다.</div>
+  </div>`;
+
+  html += `<div class="formula-section">
+    <div class="formula-label">🍃 정리: a, b에 대한 이차식</div>
+    <div class="big-formula-wrap">
+      <div class="big-formula">\\[
+        L(a,b)=${fractionalGeneralTex}
+      \\]</div>
+      <button class="copy-btn" id="copyBtn" onclick="copyFormula()">📋 복사</button>
+    </div>
+  </div>`;
+
+  html += '</div>';
+  box.innerHTML = html;
+  box.className = 'result-box has-result';
+  renderMath(box);
+}
+
+function copyFormula() {
+  if (!lastFormulaText) return;
+  const btn = document.getElementById('copyBtn');
+  const doSuccess = () => {
+    if (!btn) return;
+    btn.textContent = '✓ 복사됨';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 복사'; btn.classList.remove('copied'); }, 2000);
+  };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(lastFormulaText).then(doSuccess).catch(() => { fallbackCopy(); doSuccess(); });
+  } else { fallbackCopy(); doSuccess(); }
+  function fallbackCopy() {
+    const ta = document.createElement('textarea');
+    ta.value = lastFormulaText;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  }
+}
+
+// ── 드래그 채우기 ──
+let dragging = null;
+function getAllRows() { return Array.from(document.querySelectorAll('#dataRows tr')); }
+function getInput(row, col) { return row.querySelector(`input[data-col="${col}"]`); }
+
+// ── 방향키 셀 이동 ──
+const inputCols = ['x', 'y'];
+
+function focusCell(rowIdx, colIdx) {
+  if (rowIdx < 0) rowIdx = 0;
+  if (colIdx < 0) colIdx = 0;
+  if (colIdx >= inputCols.length) colIdx = inputCols.length - 1;
+  while (rowIdx >= getAllRows().length) addRow();
+
+  const row = getAllRows()[rowIdx];
+  const input = row ? getInput(row, inputCols[colIdx]) : null;
+  if (input) {
+    input.focus();
+    input.select();
+  }
+}
+
+function getInputPosition(input) {
+  const row = input.closest('tr');
+  const rows = getAllRows();
+  return {
+    rowIdx: rows.indexOf(row),
+    colIdx: inputCols.indexOf(input.dataset.col)
+  };
+}
+
+document.addEventListener('keydown', e => {
+  const input = e.target;
+  if (!input.classList || !input.classList.contains('data-input')) return;
+
+  const { rowIdx, colIdx } = getInputPosition(input);
+  let nextRow = rowIdx;
+  let nextCol = colIdx;
+
+  if (e.key === 'ArrowUp') nextRow--;
+  else if (e.key === 'ArrowDown' || e.key === 'Enter') nextRow++;
+  else if (e.key === 'ArrowLeft') nextCol--;
+  else if (e.key === 'ArrowRight') nextCol++;
+  else return;
+
+  e.preventDefault();
+  focusCell(nextRow, nextCol);
+});
+
+function bindDragHandles(tr) {
+  tr.querySelectorAll('.drag-handle').forEach(handle => {
+    handle.addEventListener('mousedown', e => {
+      e.preventDefault();
+      const col   = handle.dataset.col;
+      const input = handle.previousElementSibling;
+      const val   = input.value;
+      const rows  = getAllRows();
+      const startIdx = rows.indexOf(tr);
+      dragging = { startIdx, col, startVal: val, endIdx: startIdx };
+      document.querySelectorAll('.drag-highlight').forEach(el => el.classList.remove('drag-highlight'));
+      input.classList.add('drag-highlight');
+
+      const onMove = ev => {
+        const r2 = getAllRows(); let targetIdx = startIdx;
+        r2.forEach((r, i) => { const rect = r.getBoundingClientRect(); if (ev.clientY >= rect.top && ev.clientY <= rect.bottom) targetIdx = i; });
+        document.querySelectorAll('.drag-highlight').forEach(el => el.classList.remove('drag-highlight'));
+        const minI = Math.min(startIdx, targetIdx), maxI = Math.max(startIdx, targetIdx);
+        for (let i = minI; i <= maxI; i++) { const inp = getInput(r2[i], col); if (inp) inp.classList.add('drag-highlight'); }
+        dragging.endIdx = targetIdx;
+      };
+
+      const onUp = () => {
+        document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp);
+        if (dragging) {
+          const r2 = getAllRows(), minI = Math.min(dragging.startIdx, dragging.endIdx), maxI = Math.max(dragging.startIdx, dragging.endIdx);
+          const numVal = parseFloat(String(dragging.startVal).replace(/,/g, ''));
+          for (let i = minI; i <= maxI; i++) {
+            const inp = getInput(r2[i], dragging.col); if (!inp) continue;
+            inp.value = (!isNaN(numVal) && dragging.startVal !== '') ? numVal + (i - dragging.startIdx) : dragging.startVal;
+          }
+        }
+        document.querySelectorAll('.drag-highlight').forEach(el => el.classList.remove('drag-highlight'));
+        dragging = null;
+      };
+      document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp);
+    });
+  });
+}
+
+// ── 엑셀 붙여넣기 ──
+function showToast(msg, isError = false) {
+  const t = document.getElementById('pasteToast');
+  t.textContent = msg;
+  t.style.borderColor = isError ? 'var(--danger)' : 'var(--accent)';
+  t.style.color = isError ? 'var(--danger)' : 'var(--accent-dark)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+document.addEventListener('paste', e => {
+  if (document.activeElement && document.activeElement.classList.contains('data-input')) return;
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData('text');
+  if (!text) return;
+  const rows = text.trim().split(/\r?\n/).map(r => r.split('\t'));
+  const parsed = rows.map(cols => ({ x: (cols[0]||'').trim(), y: (cols[1]||'').trim() })).filter(r => r.x !== '' || r.y !== '');
+  if (parsed.length === 0) { showToast('붙여넣을 데이터가 없습니다.', true); return; }
+  document.getElementById('dataRows').innerHTML = '';
+  rowCount = 0;
+  parsed.forEach(({ x, y }) => addRow(x, y));
+  while (document.querySelectorAll('#dataRows tr').length < 5) addRow();
+  showToast(`🌿 ${parsed.length}행 붙여넣기 완료`);
+});
+
+// 초기 5행
+for (let i = 0; i < 5; i++) addRow();
+updateModelUI();
+</script>
+</body>
+</html>

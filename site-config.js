@@ -22,7 +22,7 @@ const SITE = {
   heroHighlight: "수학으로",
   heroLine2: "읽다",
 
-  heroDesc: "3일차 4단원 ‘예측과 최적화’와 5단원 ‘인공지능과 수학탐구’에서 쓰는 아이스브레이킹, 경사하강법 실습 앱, 분반별 활동 공유 자료를 한곳에 모았습니다.",
+  heroDesc: "3일차 4단원 ‘예측과 최적화’와 5단원 ‘인공지능과 수학탐구’에서 쓰는 아이스브레이킹, 4단원 실습 앱, 5단원 데이터 사이트, 분반별 활동 공유 자료를 한곳에 모았습니다.",
   searchPlaceholder: "예: 경사하강법, 아이스브레이킹, 1분반"
 };
 
@@ -68,6 +68,15 @@ const TOOLS = [
   // ===== 4단원 · 예측과 최적화 (3일차 1~4교시) · 실습 앱 =====
 
   {
+    title: "손실함수 분석기",
+    subject: "4단원",
+    type: "실습",
+    symbol: "L",
+    description: "자료를 입력하면 y = ax, y = ax + b 모형의 손실함수 L(a), L(a, b)를 전개 과정과 함께 구해 줍니다. y = ax는 완전제곱식까지 정리합니다.",
+    tags: ["손실함수", "평균제곱오차", "완전제곱식", "y=ax", "y=ax+b"],
+    url: "./loss-analyzer/"
+  },
+  {
     title: "경사하강법 시뮬레이터",
     subject: "4단원",
     type: "실습",
@@ -93,6 +102,38 @@ const TOOLS = [
     description: "a, b를 동시에 학습하며 3차원 손실곡면 위에서 경사하강 경로를 관찰합니다.",
     tags: ["경사하강법", "y=ax+b", "편미분", "손실곡면"],
     url: "./gd-yaxb/"
+  },
+
+  // ===== 5단원 · 인공지능과 수학탐구 (3일차 5~7교시) · 활용 사이트 =====
+  {
+    title: "네이버 데이터랩",
+    subject: "5단원",
+    type: "사이트",
+    symbol: "N",
+    description: "네이버 검색어의 기간별 검색량 추이를 비교하고 자료로 내려받을 수 있습니다.",
+    tags: ["검색어 트렌드", "데이터", "탐구 주제"],
+    url: "https://datalab.naver.com/keyword/trendSearch.naver",
+    thumb: "./thumbnails/u5-naver.png"
+  },
+  {
+    title: "구글 트렌드",
+    subject: "5단원",
+    type: "사이트",
+    symbol: "G",
+    description: "구글 검색어의 관심도 변화를 지역·기간별로 비교할 수 있습니다. (새 탐색 화면은 구글 로그인이 필요할 수 있습니다)",
+    tags: ["검색어 트렌드", "데이터", "탐구 주제"],
+    url: "https://trends.google.co.kr/explore?geo=KR",
+    thumb: "./thumbnails/u5-gtrends.png"
+  },
+  {
+    title: "기상자료개방포털",
+    subject: "5단원",
+    type: "사이트",
+    symbol: "☂",
+    description: "기상청이 제공하는 기온·강수량 등 기상 관측 자료를 찾아 내려받을 수 있습니다.",
+    tags: ["기상청", "기온", "강수량", "공공데이터"],
+    url: "https://data.kma.go.kr/cmmn/main.do",
+    thumb: "./thumbnails/u5-kma.png"
   },
 
   // ===== 활동 공유 (분반별 구글 슬라이드) =====
@@ -138,7 +179,7 @@ const TOOLS = [
 
 // 자료 분류 (버튼 줄). 이름을 바꾸면 위 TOOLS의 subject도 똑같이 바꿔 주세요.
 const SUBJECT_GROUPS = [
-  { label: "단원별", items: ["4단원"] },
+  { label: "단원별", items: ["4단원", "5단원"] },
   { label: "종류별", items: ["아이스브레이킹", "활동 공유"] }
 ];
 
@@ -178,7 +219,7 @@ const SCHEDULE = [
     sessions: [
       { time: "09:00", end: "12:50", title: "4단원 예측과 최적화", note: "1~4교시", subject: "4단원" },
       { time: "13:00", end: "14:00", title: "점심시간" },
-      { time: "14:00", end: "16:50", title: "5단원 인공지능과 수학탐구", note: "5~7교시" },
+      { time: "14:00", end: "16:50", title: "5단원 인공지능과 수학탐구", note: "5~7교시", subject: "5단원" },
       { time: "17:00", end: "17:50", title: "수업 아이디어 공유 및 토의·토론", note: "8교시", subject: "활동 공유" }
     ]
   }
