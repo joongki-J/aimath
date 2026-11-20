@@ -271,8 +271,9 @@ h3{font-size:14.5px;margin:6px 0 0}
   <div class="steps3">
     <div class="mstep">
       <div class="hd">① 그림마다 가중합 구하기</div>
-      <div class="formula"><i>z</i> = <i>w</i><sub>1</sub><i>p</i><sub>1</sub> + <i>w</i><sub>2</sub><i>p</i><sub>2</sub> + ⋯ + <i>w</i><sub>15</sub><i>p</i><sub>15</sub></div>
-      <p><span class="m"><i>p</i><sub><i>k</i></sub></span>는 <span class="m"><i>k</i></span>번째 칸을 칠했으면 1, 아니면 0입니다. <span class="m"><i>i</i></span>번째 그림의 칸의 값을 <span class="m"><i>p</i><sub><i>i</i>,<i>k</i></sub></span>, 가중합을 <span class="m"><i>z</i><sub><i>i</i></sub></span>, 정답을 <span class="m"><i>t</i><sub><i>i</i></sub></span>라 하겠습니다.</p>
+      <p><span class="m"><i>i</i></span>번째 그림의 <span class="m"><i>k</i></span>번째 칸의 값을 <span class="m"><i>p</i><sub><i>i</i>,<i>k</i></sub></span>라 하면, <span class="m"><i>p</i><sub><i>i</i>,<i>k</i></sub></span>는 그 칸을 칠했으면 1, 아니면 0입니다. <span class="m"><i>i</i></span>번째 그림의 가중합 <span class="m"><i>z</i><sub><i>i</i></sub></span>는 다음과 같습니다.</p>
+      <div class="formula"><i>z</i><sub><i>i</i></sub> = <i>w</i><sub>1</sub><i>p</i><sub><i>i</i>,1</sub> + <i>w</i><sub>2</sub><i>p</i><sub><i>i</i>,2</sub> + ⋯ + <i>w</i><sub>15</sub><i>p</i><sub><i>i</i>,15</sub></div>
+      <p>예를 들어 1번 그림의 가중합은 <span class="m"><i>z</i><sub>1</sub> = <i>w</i><sub>1</sub><i>p</i><sub>1,1</sub> + <i>w</i><sub>2</sub><i>p</i><sub>1,2</sub> + ⋯ + <i>w</i><sub>15</sub><i>p</i><sub>1,15</sub></span>입니다. 가중치 <span class="m"><i>w</i><sub>1</sub>, ⋯, <i>w</i><sub>15</sub></span>는 모든 그림에 똑같이 쓰이고, 그림마다 달라지는 것은 칸의 값뿐입니다. <span class="m"><i>i</i></span>번째 그림의 정답은 <span class="m"><i>t</i><sub><i>i</i></sub></span>라 하겠습니다.</p>
     </div>
     <div class="mstep">
       <div class="hd">② 15개 변수의 손실함수</div>
