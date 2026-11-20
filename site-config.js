@@ -44,8 +44,7 @@ const SITE = {
 // ---------------------------------------------------------
 
 const TOOLS = [
-
-  // ===== 아이스브레이킹 =====
+  // 카드는 아래 순서대로 홈페이지에 표시됩니다.
   {
     title: "기지개 팡팡",
     subject: "아이스브레이킹",
@@ -57,18 +56,15 @@ const TOOLS = [
     thumb: "./thumbnails/ice-stretch.png"
   },
   {
-    title: "경사하강법 게임",
-    subject: "아이스브레이킹",
-    type: "게임",
-    symbol: "⛰",
-    description: "연구선에서 탐사 장치를 내려 바다 밑 가장 깊은 곳의 보물을 찾으며 경사하강법의 원리를 체험하는 게임입니다. (영어)",
-    tags: ["아이스브레이킹", "경사하강법", "게임"],
-    url: "https://www.i-am.ai/gradient-descent.html",
-    thumb: "./thumbnails/ice-gd-game.png"
+    title: "지오지브라 클래식",
+    subject: "4단원",
+    type: "사이트",
+    symbol: "◎",
+    description: "그래프·스프레드시트·대수 창을 함께 쓰는 지오지브라입니다. 데이터를 붙여 넣어 산점도를 그리고 추세선을 그려 볼 수 있습니다.",
+    tags: ["지오지브라", "GeoGebra", "산점도", "추세선", "그래프"],
+    url: "https://www.geogebra.org/classic",
+    thumb: "./thumbnails/geogebra-classic.png"
   },
-
-  // ===== 4단원 · 예측과 최적화 (3일차 1~4교시) · 실습 앱 =====
-
   {
     title: "추세선 어림하여 그려보기 (S기업 주가 데이터)",
     subject: "4단원",
@@ -86,16 +82,6 @@ const TOOLS = [
     description: "연도별 출산율 데이터(6개)입니다. 복사 버튼을 누르면 숫자만 엑셀에 두 열로 붙여 넣을 수 있습니다.",
     tags: ["추세선", "출산율", "데이터", "엑셀", "복사"],
     url: "./birth-data/"
-  },
-  {
-    title: "지오지브라 클래식",
-    subject: "4단원",
-    type: "사이트",
-    symbol: "◎",
-    description: "그래프·스프레드시트·대수 창을 함께 쓰는 지오지브라입니다. 데이터를 붙여 넣어 산점도를 그리고 추세선을 그려 볼 수 있습니다.",
-    tags: ["지오지브라", "GeoGebra", "산점도", "추세선", "그래프"],
-    url: "https://www.geogebra.org/classic",
-    thumb: "./thumbnails/geogebra-classic.png"
   },
   {
     title: "GeoGebra로 최적의 추세선 찾기 (실습 데이터)",
@@ -116,13 +102,14 @@ const TOOLS = [
     url: "./loss-analyzer/"
   },
   {
-    title: "경사하강법 시뮬레이터",
-    subject: "4단원",
-    type: "실습",
-    symbol: "↘",
-    description: "이차·사차·복합 손실함수에서 학습률과 초깃값을 바꾸며 최솟값을 찾아가는 과정을 관찰합니다. 지역 최솟값도 비교할 수 있습니다.",
-    tags: ["경사하강법", "학습률", "지역 최솟값", "손실함수"],
-    url: "./gd-simulator/"
+    title: "경사하강법 게임",
+    subject: "아이스브레이킹",
+    type: "게임",
+    symbol: "⛰",
+    description: "연구선에서 탐사 장치를 내려 바다 밑 가장 깊은 곳의 보물을 찾으며 경사하강법의 원리를 체험하는 게임입니다. (영어)",
+    tags: ["아이스브레이킹", "경사하강법", "게임"],
+    url: "https://www.i-am.ai/gradient-descent.html",
+    thumb: "./thumbnails/ice-gd-game.png"
   },
   {
     title: "경사하강법 y = ax",
@@ -134,6 +121,15 @@ const TOOLS = [
     url: "./gd-yax/"
   },
   {
+    title: "경사하강법 시뮬레이터",
+    subject: "4단원",
+    type: "실습",
+    symbol: "↘",
+    description: "이차·사차·복합 손실함수에서 학습률과 초깃값을 바꾸며 최솟값을 찾아가는 과정을 관찰합니다. 지역 최솟값도 비교할 수 있습니다.",
+    tags: ["경사하강법", "학습률", "지역 최솟값", "손실함수"],
+    url: "./gd-simulator/"
+  },
+  {
     title: "경사하강법 y = ax + b",
     subject: "4단원",
     type: "실습",
@@ -142,7 +138,6 @@ const TOOLS = [
     tags: ["경사하강법", "y=ax+b", "편미분", "손실곡면"],
     url: "./gd-yaxb/"
   },
-
   {
     title: "경사하강법 3D 시각화",
     subject: "4단원",
@@ -152,16 +147,6 @@ const TOOLS = [
     tags: ["경사하강법", "3D", "손실곡면", "모멘텀", "학습률"],
     url: "https://mathlove22.github.io/3d-decent/",
     thumb: "./thumbnails/gd-3d.png"
-  },
-  {
-    title: "경사하강법 영상 (MNIST 자료)",
-    subject: "4단원",
-    type: "영상",
-    symbol: "▶",
-    description: "3Blue1Brown 한국어 「AI가 궁금하다면 봐야할 기초영상 경사하강법 - DL2」. MNIST 손글씨 숫자 자료로 신경망이 경사하강법으로 학습하는 원리를 설명합니다. 30초부터 재생됩니다.",
-    tags: ["경사하강법", "MNIST", "손글씨 숫자", "신경망", "3Blue1Brown", "영상"],
-    url: "https://youtu.be/8861RzFOFs8?t=30",
-    thumb: "https://i.ytimg.com/vi/8861RzFOFs8/maxresdefault.jpg"
   },
   {
     title: "화소별 가중치로 숫자 구분하기",
@@ -181,7 +166,16 @@ const TOOLS = [
     tags: ["가중치", "문장 분류", "감성 분석", "텍스트 데이터", "출력 노드"],
     url: "./word-weights/"
   },
-  // ===== 5단원 · 인공지능과 수학탐구 (3일차 5~7교시) · 활용 사이트 =====
+  {
+    title: "경사하강법 영상 (MNIST 자료)",
+    subject: "4단원",
+    type: "영상",
+    symbol: "▶",
+    description: "3Blue1Brown 한국어 「AI가 궁금하다면 봐야할 기초영상 경사하강법 - DL2」. MNIST 손글씨 숫자 자료로 신경망이 경사하강법으로 학습하는 원리를 설명합니다. 30초부터 재생됩니다.",
+    tags: ["경사하강법", "MNIST", "손글씨 숫자", "신경망", "3Blue1Brown", "영상"],
+    url: "https://youtu.be/8861RzFOFs8?t=30",
+    thumb: "https://i.ytimg.com/vi/8861RzFOFs8/maxresdefault.jpg"
+  },
   {
     title: "5단원 실습자료 1",
     subject: "5단원",
@@ -241,8 +235,6 @@ const TOOLS = [
     url: "https://data.kma.go.kr/cmmn/main.do",
     thumb: "./thumbnails/u5-kma.png"
   },
-
-  // ===== 참고 자료 =====
   {
     title: "AskMath 인공지능 수학 자료",
     subject: "참고 자료",
@@ -253,8 +245,6 @@ const TOOLS = [
     url: "https://askmath.kosac.re.kr/board.do?menuPos=17&idx=&board_code=601LT980&skinTabPos3=1&tabPos3=1&searchValue3=&skinSearchValue2=435&skinSearchValue3=&skinSearchValue4=&skinSearchValue6=&paramKey50=&searchValue1=0&searchKeyword=%EC%9D%B8%EA%B3%B5&pageIndex=1",
     thumb: "./thumbnails/askmath-ai.png"
   },
-
-  // ===== 활동 공유 (분반별 구글 슬라이드) =====
   {
     title: "1분반 활동 공유",
     subject: "활동 공유",
