@@ -160,6 +160,7 @@ h3{font-size:14.5px;margin:6px 0 0}
 .fold summary{cursor:pointer;padding:12px 14px;font-weight:700;font-size:15px;color:#ffffff;background:#2b4acb;border-radius:7px}
 .fold[open] summary{border-radius:7px 7px 0 0;margin-bottom:12px}
 .fold summary .m{color:#ffffff}
+.fold summary{line-height:1.5}
 .fold summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .foldin{display:grid;gap:10px;padding:0 12px 12px;min-width:0}
 [hidden]{display:none !important}
@@ -268,6 +269,9 @@ h3{font-size:14.5px;margin:6px 0 0}
 
 <section aria-labelledby="h2" class="big3">
   <h2 id="h2"><span class="n">3</span>15개의 가중치를 한꺼번에 학습하기</h2>
+  <details class="fold" id="theory">
+    <summary>학습 원리 펼쳐 보기 (① 가중합 → ② 손실함수 → ③ 편미분 → ④ 동시 이동)</summary>
+    <div class="foldin">
   <div class="steps3">
     <div class="mstep">
       <div class="hd">① 그림마다 가중합 구하기</div>
@@ -293,6 +297,8 @@ h3{font-size:14.5px;margin:6px 0 0}
       <p><span class="m"><i>r</i></span>는 학습률입니다. 지금의 가중치로 기울기 15개를 <b>먼저 모두 계산한 다음</b> 15개를 한꺼번에 바꿉니다. 기울기 15개를 묶은 <span class="m">(<span class="frac"><span>∂<i>L</i></span><span>∂<i>w</i><sub>1</sub></span></span>, ⋯, <span class="frac"><span>∂<i>L</i></span><span>∂<i>w</i><sub>15</sub></span></span>)</span>의 반대 방향이 손실함수의 값이 가장 빠르게 줄어드는 방향이고, 이 방향으로 조금씩 이동하는 것이 경사하강법입니다.</p>
     </div>
   </div>
+    </div>
+  </details>
 
   <div class="grids">
     <div class="gbox"><div class="gt">현재 가중치 <span class="m"><i>w</i><sub><i>k</i></sub></span></div><div class="g3" id="gW"></div></div>
@@ -571,6 +577,8 @@ h3{font-size:14.5px;margin:6px 0 0}
     timer=setInterval(function(){if(left--<=0){stopAuto();return}stepAll()},150);
   });
   $("resetW").addEventListener("click",resetW);
+  var TH=$("theory"),THS=TH.querySelector("summary"),THT=THS.textContent;
+  TH.addEventListener("toggle",function(){THS.textContent=TH.open?"학습 원리 접기":THT});
   window.addEventListener("resize",drawHist);
   try{
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",renderAll);
