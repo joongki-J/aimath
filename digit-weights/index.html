@@ -238,6 +238,26 @@ h3{font-size:14.5px;margin:6px 0 0}
 .wpic.skip{opacity:.38}
 .big3{display:grid;gap:14px}
 .out{min-width:200px}
+/* 학습될 때마다 바뀌는 가중치 */
+.wevo{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:10px 12px;display:grid;gap:10px}
+.wevo-head{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.wevo-head b{font-size:14.5px}
+.wevo-head span{font-size:13px;color:var(--sub)}
+.wevo-main{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.wheat{display:grid;grid-template-columns:repeat(3,64px);gap:3px;background:var(--pix-grid);padding:3px;border-radius:8px}
+.wheat div{height:46px;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;font-variant-numeric:tabular-nums;transition:background .25s}
+.wheat b{font-size:13.5px;font-weight:700;color:var(--ink)}
+.wheat small{font-size:10.5px;font-weight:600}
+.wheat .up{color:#b45309} .wheat .dn{color:#0f766e} .wheat .eq{color:var(--sub)}
+.wevo-side{display:grid;gap:8px;flex:1;min-width:200px}
+.wevo-side input[type=range]{width:100%}
+.wevo-side .lg{display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--sub)}
+.wevo-side .lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.wevo-strip{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 6px}
+.wevo-strip button{flex:none;border:1px solid var(--line);border-radius:6px;background:var(--panel);padding:3px 4px 2px;cursor:pointer;display:grid;justify-items:center;gap:2px;font:inherit;font-size:10.5px;color:var(--sub)}
+.wevo-strip button.on{outline:3px solid var(--accent);outline-offset:1px;color:var(--ink);font-weight:700}
+.wmini{display:grid;grid-template-columns:repeat(3,9px);gap:1px;background:var(--pix-grid);padding:1px;border-radius:2px}
+.wmini i{display:block;width:9px;height:9px}
 /* 한 번 이동: 이동한 가중치가 현재 가중치로 날아가는 애니메이션 */
 .flycell{position:fixed;z-index:60;display:flex;align-items:center;justify-content:center;border:2px solid var(--accent);border-radius:6px;background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--ink);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;pointer-events:none;box-shadow:0 6px 14px rgba(0,0,0,.18)}
 .g3 .leaving{opacity:.25;transition:opacity .25s}
@@ -376,6 +396,19 @@ h3{font-size:14.5px;margin:6px 0 0}
     <div class="axis2 num" id="axis2"></div>
   </div>
   <p class="note">가로축은 가중합 <span class="m"><i>z</i></span>입니다. 기준선(<span class="m"><i>z</i> = 0</span>)의 오른쪽은 8, 왼쪽(기준선 포함)은 1로 판정합니다. 빨간 테두리는 틀리게 판정한 그림입니다.</p>
+  <div class="wevo" id="wevo">
+    <div class="wevo-head"><b>학습될 때마다 바뀌는 가중치</b><span id="wevoInfo"></span></div>
+    <div class="wevo-main">
+      <div class="wheat" id="wheat" role="img" aria-label="3×5 가중치 지도"></div>
+      <div class="wevo-side">
+        <label class="note" for="wevoRange">이동 횟수 <b id="wevoStep" class="num"></b>번 뒤의 가중치</label>
+        <input type="range" id="wevoRange" min="0" max="0" step="1" value="0">
+        <div class="row"><button class="b" id="wevoPlay" type="button">▶ 처음부터 재생</button><button class="b" id="wevoLast" type="button">지금 가중치</button></div>
+        <div class="lg"><span><i style="background:var(--eight)"></i>양수: 칠하면 가중합이 커짐(8 쪽)</span><span><i style="background:var(--one)"></i>음수: 칠하면 가중합이 작아짐(1 쪽)</span><span>▲▼: 직전 이동보다 바뀐 양</span></div>
+      </div>
+    </div>
+    <div class="wevo-strip" id="wevoStrip" aria-label="이동할 때마다 기록한 가중치 지도"></div>
+  </div>
   <div class="draw">
     <div class="pad" id="pad" role="group" aria-label="3×5 그림판"></div>
     <div class="out">
@@ -409,7 +442,7 @@ h3{font-size:14.5px;margin:6px 0 0}
   var $=function(id){return document.getElementById(id)};
   function zeros(){var z=[];for(var i=0;i<15;i++)z.push(0);return z}
   function base(){return RAW.map(function(r){return {cells:r.slice(0,5).join("").split("").map(function(x){return x==="#"?1:0}),c:r[5],base:true}})}
-  var cur={data:base(),W:zeros(),feed:6,pad:zeros(),steps:0,hist:[],gk:4};
+  var cur={data:base(),W:zeros(),feed:6,pad:zeros(),steps:0,hist:[],wHist:[],wv:null,gk:4};
 
   function sum(a){return a.reduce(function(s,v){return s+v},0)}
   function zOf(c){var s=0;for(var k=0;k<15;k++)s+=cur.W[k]*c[k];return s}
@@ -650,11 +683,46 @@ h3{font-size:14.5px;margin:6px 0 0}
     g.fillStyle=css("--accent");g.beginPath();g.arc(X(n-1),Y(hs[n-1]),4,0,7);g.fill();
   }
 
-  function renderAll(){renderSamples();renderNet();renderLearn();renderStats();renderTrack();renderPad();drawHist()}
+  function renderAll(){renderSamples();renderNet();renderLearn();renderStats();renderTrack();renderPad();drawHist();renderWevo()}
+
+  /* ---------- 학습될 때마다 바뀌는 가중치 ---------- */
+  var WEVO_T=null;
+  function wColor(v,scale){
+    var m=Math.min(1,Math.abs(v)/scale)*75;
+    return 'color-mix(in srgb,'+(v>=0?'var(--eight)':'var(--one)')+' '+m.toFixed(0)+'%,var(--panel))';
+  }
+  function wevoStepNo(i){return cur.steps-(cur.wHist.length-1-i)}
+  function renderWevo(){
+    var H=cur.wHist,n=H.length;if(!n)return;
+    var i=cur.wv===null?n-1:Math.max(0,Math.min(n-1,cur.wv)),W=H[i],P=i>0?H[i-1]:null,k,h='';
+    var scale=0.05;H.forEach(function(w){w.forEach(function(v){scale=Math.max(scale,Math.abs(v))})});
+    for(k=0;k<15;k++){
+      var d=P?W[k]-P[k]:0,dt=!P?'<small class="eq">처음</small>':(Math.abs(d)<0.0005?'<small class="eq">변화 없음</small>':'<small class="'+(d>0?'up':'dn')+'">'+(d>0?'▲':'▼')+fmt(Math.abs(d),3)+'</small>');
+      h+='<div style="background:'+wColor(W[k],scale)+'"><b>'+fmt(W[k],2)+'</b>'+dt+'</div>';
+    }
+    $("wheat").innerHTML=h;
+    var step=wevoStepNo(i);
+    $("wevoStep").textContent=step;
+    $("wevoRange").max=n-1;$("wevoRange").value=i;
+    $("wevoInfo").textContent=(i===n-1?'지금 가중치입니다. ':'지금보다 '+(n-1-i)+'번 앞의 가중치입니다. ')+'이동할 때마다 아래에 한 장씩 쌓입니다.';
+    var st='',from=Math.max(0,n-60);
+    for(var j=from;j<n;j++){
+      var mini='<span class="wmini">';
+      for(k=0;k<15;k++)mini+='<i style="background:'+wColor(H[j][k],scale)+'"></i>';
+      st+='<button type="button" data-w="'+j+'" class="'+(j===i?'on':'')+'">'+mini+'</span>'+wevoStepNo(j)+'번</button>';
+    }
+    $("wevoStrip").innerHTML=st;
+    var on=$("wevoStrip").querySelector(".on");if(on&&on.scrollIntoView&&WEVO_T)on.scrollIntoView({block:"nearest",inline:"nearest"});
+  }
+  function wevoStop(){if(WEVO_T){clearInterval(WEVO_T);WEVO_T=null;$("wevoPlay").textContent="▶ 처음부터 재생"}}
   function say(t,warn){var m=$("msg");m.innerHTML=t;m.className="msg num"+(warn?" warn":"")}
   function stopAuto(){if(timer){clearInterval(timer);timer=null;$("auto").textContent="자동 실행"}}
-  function record(){cur.hist.push(loss());if(cur.hist.length>400)cur.hist.shift()}
-  function newHist(){cur.hist=[];record()}
+  function record(){
+    cur.hist.push(loss());cur.wHist.push(cur.W.slice());
+    if(cur.hist.length>400){cur.hist.shift();cur.wHist.shift()}
+    cur.wv=null;
+  }
+  function newHist(){cur.hist=[];cur.wHist=[];record()}
   function stepAll(animated){
     var r=eta(),before=loss(),G=grads();            // 기울기 15개를 먼저 모두 계산
     for(var k=0;k<15;k++)cur.W[k]-=r*G[k];          // 그다음 15개를 한꺼번에 이동
@@ -738,6 +806,18 @@ h3{font-size:14.5px;margin:6px 0 0}
     timer=setInterval(function(){if(left--<=0){stopAuto();return}stepAll()},150);
   });
   $("resetW").addEventListener("click",resetW);
+  $("wevoRange").addEventListener("input",function(){wevoStop();cur.wv=+this.value;renderWevo()});
+  $("wevoStrip").addEventListener("click",function(e){var t=e.target.closest("[data-w]");if(!t)return;wevoStop();cur.wv=+t.dataset.w;renderWevo()});
+  $("wevoLast").addEventListener("click",function(){wevoStop();cur.wv=null;renderWevo()});
+  $("wevoPlay").addEventListener("click",function(){
+    if(WEVO_T){wevoStop();return}
+    var n=cur.wHist.length;if(n<2)return;
+    cur.wv=0;renderWevo();this.textContent="■ 멈춤";
+    WEVO_T=setInterval(function(){
+      if(cur.wv===null||cur.wv>=cur.wHist.length-1){wevoStop();cur.wv=null;renderWevo();return}
+      cur.wv++;renderWevo();
+    },Math.max(120,Math.min(450,6000/n)));
+  });
   var TH=$("theory"),THS=TH.querySelector("summary"),THT=THS.textContent;
   TH.addEventListener("toggle",function(){THS.textContent=TH.open?"학습 원리 접기":THT});
   $("workFold").addEventListener("toggle",function(){if(!this.open&&HA.on){haReset();renderWork()}else workSummary()});
