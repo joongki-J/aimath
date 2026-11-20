@@ -232,6 +232,14 @@
           <button class="btn ok" id="optimumBtn">최적값 보기</button>
         </div>
 
+        <div class="formula" id="formulaBox"></div>
+        <div class="history-wrap">
+          <table>
+            <thead><tr><th>k</th><th>a</th><th>b</th><th>L</th><th>∂a</th><th>∂b</th></tr></thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+
         <div class="metrics">
           <div class="metric"><div class="label">반복 횟수</div><div class="value" id="iterValue">0</div></div>
           <div class="metric"><div class="label">현재 L(a,b)</div><div class="value" id="lossValue">-</div></div>
@@ -243,14 +251,6 @@
           <div class="metric"><div class="label">최적 b*</div><div class="value" id="optBValue">-</div></div>
           <div class="metric"><div class="label">최소 손실</div><div class="value" id="minLossValue">-</div></div>
           <div class="metric"><div class="label">경사 크기</div><div class="value" id="gradNormValue">-</div></div>
-        </div>
-
-        <div class="formula" id="formulaBox"></div>
-        <div class="history-wrap">
-          <table>
-            <thead><tr><th>k</th><th>a</th><th>b</th><th>L</th><th>∂a</th><th>∂b</th></tr></thead>
-            <tbody id="historyBody"></tbody>
-          </table>
         </div>
         <div class="status" id="statusBox"></div>
         <div class="note">손실함수는 <b>MSE = (1/n)Σ(yᵢ − (axᵢ + b))²</b>입니다.<br>업데이트는 <b>a ← a − r∂L/∂a</b>, <b>b ← b − r∂L/∂b</b>입니다.</div>
