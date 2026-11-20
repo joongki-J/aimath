@@ -496,7 +496,7 @@
       <div class="panel-body">
         <div class="controls">
           <div class="control">
-            <label for="learningRate">학습률 η</label>
+            <label for="learningRate">학습률 r</label>
             <input id="learningRate" type="number" value="0.125" min="0.000001" step="0.01">
           </div>
           <div class="control">
@@ -1063,7 +1063,7 @@
     $("formulaBox").innerHTML =
       `L(a) = ${fmt(A,4)}a² ${sign(B)} ${fmt(Math.abs(B),4)}a ${sign(C)} ${fmt(Math.abs(C),4)}<br>`+
       `L′(a) = ${fmt(2*A,4)}a ${sign(B)} ${fmt(Math.abs(B),4)}<br>`+
-      `a<sub>k+1</sub> = a<sub>k</sub> − η·L′(a<sub>k</sub>)`;
+      `a<sub>k+1</sub> = a<sub>k</sub> − r·L′(a<sub>k</sub>)`;
   }
 
   function updateMetrics(){
@@ -1171,7 +1171,7 @@
       setStatus("설정한 최대 반복 횟수에 도달했습니다.","ok");
       stop();
     }else{
-      setStatus(`a ← a − ηL′(a)를 적용했습니다. (η = ${fmt(eta,4)}, |L′(a)| = ${fmt(Math.abs(nextGrad),7)})`);
+      setStatus(`a ← a − rL′(a)를 적용했습니다. (r = ${fmt(eta,4)}, |L′(a)| = ${fmt(Math.abs(nextGrad),7)})`);
     }
     render();
     return true;

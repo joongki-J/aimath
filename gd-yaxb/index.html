@@ -211,7 +211,7 @@
       </div>
       <div class="panel-body">
         <div class="controls">
-          <div class="control"><label for="learningRate">학습률 η</label><input id="learningRate" type="number" value="0.0527" min="0.000001" step="0.0001"></div>
+          <div class="control"><label for="learningRate">학습률 r</label><input id="learningRate" type="number" value="0.0527" min="0.000001" step="0.0001"></div>
           <div class="control"><label for="maxIter">최대 반복 횟수</label><input id="maxIter" type="number" value="72" min="1" max="500" step="1"></div>
           <div class="control"><label for="initialA">a의 초깃값</label><input id="initialA" type="number" value="-1" step="0.1"></div>
           <div class="control"><label for="initialB">b의 초깃값</label><input id="initialB" type="number" value="4" step="0.1"></div>
@@ -253,7 +253,7 @@
           </table>
         </div>
         <div class="status" id="statusBox"></div>
-        <div class="note">손실함수는 <b>MSE = (1/n)Σ(yᵢ − (axᵢ + b))²</b>입니다.<br>업데이트는 <b>a ← a − η∂L/∂a</b>, <b>b ← b − η∂L/∂b</b>입니다.</div>
+        <div class="note">손실함수는 <b>MSE = (1/n)Σ(yᵢ − (axᵢ + b))²</b>입니다.<br>업데이트는 <b>a ← a − r∂L/∂a</b>, <b>b ← b − r∂L/∂b</b>입니다.</div>
       </div>
     </article>
   </section>
@@ -771,7 +771,7 @@
       `L(a,b) = ${fmt(c.A,4)}a² ${sign(c.B)} ${fmt(Math.abs(c.B),4)}ab + b² ${sign(c.D)} ${fmt(Math.abs(c.D),4)}a ${sign(c.E)} ${fmt(Math.abs(c.E),4)}b ${sign(c.F)} ${fmt(Math.abs(c.F),4)}<br>`+
       `∂L/∂a = ${fmt(2*c.A,4)}a ${sign(c.B)} ${fmt(Math.abs(c.B),4)}b ${sign(c.D)} ${fmt(Math.abs(c.D),4)}<br>`+
       `∂L/∂b = ${fmt(c.B,4)}a + 2b ${sign(c.E)} ${fmt(Math.abs(c.E),4)}<br>`+
-      `aₖ₊₁ = aₖ − η∂L/∂a,  bₖ₊₁ = bₖ − η∂L/∂b`;
+      `aₖ₊₁ = aₖ − r∂L/∂a,  bₖ₊₁ = bₖ − r∂L/∂b`;
   }
 
   function updateMetrics(){
@@ -842,7 +842,7 @@
     const ng=grad(state.a,state.b); const nnorm=Math.hypot(ng.ga,ng.gb);
     if(conv.enabled && nnorm<=conv.epsilon){setStatus(`수렴 기준에 도달했습니다. 경사 크기 = ${fmt(nnorm,8)}`,"ok");stop();}
     else if(state.iteration>=maxIter){setStatus("설정한 최대 반복 횟수에 도달했습니다.","ok");stop();}
-    else setStatus(`a와 b를 한 번 업데이트했습니다. η = ${fmt(eta,5)}, 경사 크기 = ${fmt(nnorm,7)}`);
+    else setStatus(`a와 b를 한 번 업데이트했습니다. r = ${fmt(eta,5)}, 경사 크기 = ${fmt(nnorm,7)}`);
     render(); return true;
   }
 
