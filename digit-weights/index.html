@@ -205,7 +205,7 @@ h3{font-size:14.5px;margin:6px 0 0}
 .cnow{color:var(--eight);font-weight:600}
 .spd{font-size:12.5px;color:var(--sub);display:flex;align-items:center;gap:4px}
 .cfin{color:var(--accent)}
-/* ===== 소프트맥스·정답 표시·15개 변수 학습 (추가) ===== */
+/* ===== 정답 표시·15개 변수 학습 (추가) ===== */
 .okline{font-size:14px;font-weight:600;margin:0}
 .okline .g{color:var(--good)} .okline .x{color:var(--bad)}
 .s.right{background:color-mix(in srgb,var(--good) 9%,var(--panel))}
@@ -244,7 +244,7 @@ h3{font-size:14.5px;margin:6px 0 0}
 <header>
   <a href="../#tools" style="display:inline-block;margin:0 0 10px;color:#2563eb;font-size:14px;font-weight:700;text-decoration:none">← 연수 자료실</a>
   <h1>화소별 가중치로 숫자 구분하기</h1>
-  <p id="intro">3×5 격자의 칸마다 가중치를 하나씩 두고, 칠한 칸의 가중치를 모두 더한 <b>가중합</b> <span class="m"><i>z</i></span>로 숫자 1과 8을 구분합니다. 출력 노드는 ‘숫자 8’(가중합 <span class="m"><i>z</i></span>)과 ‘숫자 1’(가중합 0으로 고정) 두 개이고, <b>소프트맥스</b>로 확률을 구해 확률이 큰 숫자로 판정합니다. 학습하는 가중치는 15개입니다.</p>
+  <p id="intro">3×5 격자의 칸마다 가중치를 하나씩 두고, 칠한 칸의 가중치를 모두 더한 <b>가중합</b> <span class="m"><i>z</i></span>로 숫자 1과 8을 구분합니다. 활성화 함수는 <b>계단함수</b>로, 가중합이 0보다 크면 1(숫자 8), 0 이하이면 −1(숫자 1)을 출력합니다. 학습하는 가중치는 15개입니다.</p>
 </header>
 
 <div class="cols">
@@ -258,11 +258,11 @@ h3{font-size:14.5px;margin:6px 0 0}
 
 <section aria-labelledby="hn">
   <h2 id="hn"><span class="n">2</span>인공신경망으로 나타내기</h2>
-  <p class="note">칸 15개가 입력 노드입니다. 연결선마다 가중치가 하나씩 있고, 칠한 칸(값 1)의 가중치만 더해져 숫자 8 노드의 가중합 <span class="m"><i>z</i></span>가 됩니다. 숫자 1 노드의 가중합은 0으로 고정한 기준입니다.</p>
+  <p class="note">칸 15개가 입력 노드입니다. 연결선마다 가중치가 하나씩 있고, 칠한 칸(값 1)의 가중치만 더해져 가중합 <span class="m"><i>z</i></span>가 됩니다.</p>
   <div class="fedinfo" id="fedinfo"></div>
-  <div class="netwrap"><svg id="net" viewBox="0 0 346 392" role="img" aria-label="입력 노드 15개, 출력 노드 2개, 소프트맥스로 이루어진 인공신경망"></svg></div>
+  <div class="netwrap"><svg id="net" viewBox="0 0 346 392" role="img" aria-label="입력 노드 15개, 출력 노드 1개, 계단함수로 이루어진 인공신경망"></svg></div>
   <div class="legend"><span><i style="background:var(--eight)"></i>양수 가중치</span><span><i style="background:var(--one)"></i>음수 가중치</span><span>선이 굵을수록 절댓값이 큽니다</span></div>
-  <p class="note">활성화 함수는 <b>소프트맥스</b>입니다. <span class="m"><i>P</i>(8) = <span class="frac"><span><i>e</i><sup><i>z</i></sup></span><span><i>e</i><sup><i>z</i></sup> + <i>e</i><sup>0</sup></span></span></span>, <span class="m"><i>P</i>(1) = <span class="frac"><span><i>e</i><sup>0</sup></span><span><i>e</i><sup><i>z</i></sup> + <i>e</i><sup>0</sup></span></span></span>이고 두 확률의 합은 1입니다. 확률이 더 큰 숫자로 판정하므로 <span class="m"><i>z</i> &gt; 0</span>이면 8, <span class="m"><i>z</i> ≤ 0</span>이면 1입니다. (<span class="m"><i>z</i> = 0</span>이면 두 확률이 50%로 같고, 이때는 1로 판정합니다.)</p>
+  <p class="note">활성화 함수는 <b>계단함수</b>입니다. <span class="m"><i>f</i>(<i>z</i>) = 1 (<i>z</i> &gt; 0)</span>, <span class="m"><i>f</i>(<i>z</i>) = −1 (<i>z</i> ≤ 0)</span>이고, 출력이 1이면 숫자 8, −1이면 숫자 1로 판정합니다. 정답도 숫자 8이면 1, 숫자 1이면 −1로 두었으므로 출력과 정답이 같으면 맞게 판정한 것입니다.</p>
 </section>
 </div>
 
@@ -273,18 +273,19 @@ h3{font-size:14.5px;margin:6px 0 0}
       <div class="hd">① 그림마다 가중합 구하기</div>
       <p><span class="m"><i>i</i></span>번째 그림의 <span class="m"><i>k</i></span>번째 칸의 값을 <span class="m"><i>p</i><sub><i>i</i>,<i>k</i></sub></span>라 하면, <span class="m"><i>p</i><sub><i>i</i>,<i>k</i></sub></span>는 그 칸을 칠했으면 1, 아니면 0입니다. <span class="m"><i>i</i></span>번째 그림의 가중합 <span class="m"><i>z</i><sub><i>i</i></sub></span>는 다음과 같습니다.</p>
       <div class="formula"><i>z</i><sub><i>i</i></sub> = <i>w</i><sub>1</sub><i>p</i><sub><i>i</i>,1</sub> + <i>w</i><sub>2</sub><i>p</i><sub><i>i</i>,2</sub> + ⋯ + <i>w</i><sub>15</sub><i>p</i><sub><i>i</i>,15</sub></div>
-      <p>예를 들어 1번 그림의 가중합은 <span class="m"><i>z</i><sub>1</sub> = <i>w</i><sub>1</sub><i>p</i><sub>1,1</sub> + <i>w</i><sub>2</sub><i>p</i><sub>1,2</sub> + ⋯ + <i>w</i><sub>15</sub><i>p</i><sub>1,15</sub></span>입니다. 가중치 <span class="m"><i>w</i><sub>1</sub>, ⋯, <i>w</i><sub>15</sub></span>는 모든 그림에 똑같이 쓰이고, 그림마다 달라지는 것은 칸의 값뿐입니다. <span class="m"><i>i</i></span>번째 그림의 정답은 <span class="m"><i>t</i><sub><i>i</i></sub></span>라 하겠습니다.</p>
+      <p>예를 들어 1번 그림의 가중합은 <span class="m"><i>z</i><sub>1</sub> = <i>w</i><sub>1</sub><i>p</i><sub>1,1</sub> + <i>w</i><sub>2</sub><i>p</i><sub>1,2</sub> + ⋯ + <i>w</i><sub>15</sub><i>p</i><sub>1,15</sub></span>입니다. 가중치 <span class="m"><i>w</i><sub>1</sub>, ⋯, <i>w</i><sub>15</sub></span>는 모든 그림에 똑같이 쓰이고, 그림마다 달라지는 것은 칸의 값뿐입니다.</p>
+      <p>이 가중합 <span class="m"><i>z</i><sub><i>i</i></sub></span>를 <span class="m"><i>i</i></span>번째 그림에 대한 인공신경망의 <b>예측값</b>으로 봅니다. <span class="m"><i>i</i></span>번째 그림의 정답을 <span class="m"><i>t</i><sub><i>i</i></sub></span>라 하면(숫자 8이면 1, 숫자 1이면 −1), 예측값 <span class="m"><i>z</i><sub><i>i</i></sub></span>가 정답 <span class="m"><i>t</i><sub><i>i</i></sub></span>에 가까울수록 잘 예측한 것입니다.</p>
     </div>
     <div class="mstep">
-      <div class="hd">② 15개 변수의 손실함수</div>
+      <div class="hd">② 15개 변수의 손실함수: (예측값 − 정답)<sup>2</sup>의 평균</div>
       <div class="formula"><i>L</i>(<i>w</i><sub>1</sub>, <i>w</i><sub>2</sub>, ⋯, <i>w</i><sub>15</sub>) = <span class="frac"><span>1</span><span><i>n</i></span></span>{(<i>z</i><sub>1</sub> − <i>t</i><sub>1</sub>)<sup>2</sup> + (<i>z</i><sub>2</sub> − <i>t</i><sub>2</sub>)<sup>2</sup> + ⋯ + (<i>z</i><sub><i>n</i></sub> − <i>t</i><sub><i>n</i></sub>)<sup>2</sup>}</div>
-      <p><span class="m"><i>n</i></span>은 그림의 수입니다. <span class="m"><i>z</i><sub><i>i</i></sub></span>가 가중치 15개로 이루어져 있으므로 <span class="m"><i>L</i></span>은 15개 변수의 함수입니다. 판정은 소프트맥스 확률로 하지만, 손실함수는 다항함수의 미분만으로 다룰 수 있도록 소프트맥스를 거치기 전의 가중합 <span class="m"><i>z</i></span>와 정답의 차로 계산합니다. (실제 분류 모델은 소프트맥스를 거친 확률로 손실함수를 계산합니다.)</p>
+      <p><span class="m"><i>n</i></span>은 그림의 수입니다. 그림마다 예측값과 정답의 차 <span class="m"><i>z</i><sub><i>i</i></sub> − <i>t</i><sub><i>i</i></sub></span>(오차)를 제곱해 평균한 값이 손실함수이고, 예측값이 정답에 가까울수록 <span class="m"><i>L</i></span>의 값이 작아집니다. <span class="m"><i>z</i><sub><i>i</i></sub></span>가 가중치 15개로 이루어져 있으므로 <span class="m"><i>L</i></span>은 15개 변수의 함수입니다. 판정은 계단함수의 출력으로 하지만, 손실함수는 활성화 함수를 거치기 전의 가중합, 즉 예측값 <span class="m"><i>z</i><sub><i>i</i></sub></span>와 정답의 차로 계산합니다. 계단함수는 기울기가 0인 구간뿐이라 계단함수의 출력으로 손실함수를 만들면 기울기가 0이 되어 경사하강법으로 가중치를 움직일 수 없기 때문입니다.</p>
     </div>
     <div class="mstep">
       <div class="hd">③ 가중치 하나에 대한 기울기 (편미분)</div>
       <p>나머지 14개의 가중치를 상수로 보면 <span class="m"><i>z</i><sub><i>i</i></sub> = <i>p</i><sub><i>i</i>,<i>k</i></sub><i>w</i><sub><i>k</i></sub> + (상수)</span>이므로 <span class="m">(<i>z</i><sub><i>i</i></sub> − <i>t</i><sub><i>i</i></sub>)<sup>2</sup></span>은 <span class="m"><i>w</i><sub><i>k</i></sub></span>에 대한 이차식이고, <span class="m"><i>w</i><sub><i>k</i></sub></span>에 대하여 미분하면 <span class="m">2(<i>z</i><sub><i>i</i></sub> − <i>t</i><sub><i>i</i></sub>) × <i>p</i><sub><i>i</i>,<i>k</i></sub></span>입니다. 이렇게 한 변수만 남기고 미분한 것을 <b>편미분</b>이라 하고 <span class="m"><span class="frac"><span>∂<i>L</i></span><span>∂<i>w</i><sub><i>k</i></sub></span></span></span>로 나타냅니다.</p>
       <div class="formula"><span class="frac"><span>∂<i>L</i></span><span>∂<i>w</i><sub><i>k</i></sub></span></span> = <span class="frac"><span>2</span><span><i>n</i></span></span>{(<i>z</i><sub>1</sub> − <i>t</i><sub>1</sub>)<i>p</i><sub>1,<i>k</i></sub> + (<i>z</i><sub>2</sub> − <i>t</i><sub>2</sub>)<i>p</i><sub>2,<i>k</i></sub> + ⋯ + (<i>z</i><sub><i>n</i></sub> − <i>t</i><sub><i>n</i></sub>)<i>p</i><sub><i>n</i>,<i>k</i></sub>}</div>
-      <p><span class="m"><i>k</i></span>번째 칸을 칠하지 않은 그림은 <span class="m"><i>p</i><sub><i>i</i>,<i>k</i></sub> = 0</span>이라 빠집니다. 그래서 <b><span class="m"><i>k</i></span>번째 칸을 칠한 그림의 (가중합 − 정답)만 더해</b> <span class="m"><span class="frac"><span>2</span><span><i>n</i></span></span></span>을 곱하면 됩니다. 예를 들어 숫자 8 그림인데 <span class="m"><i>z</i><sub><i>i</i></sub></span>가 1보다 작으면 <span class="m"><i>z</i><sub><i>i</i></sub> − <i>t</i><sub><i>i</i></sub> &lt; 0</span>이라 그 그림이 칠한 칸의 기울기를 음수 쪽으로 당기고, 아래 ④에서 그 칸의 가중치가 커집니다.</p>
+      <p><span class="m"><i>k</i></span>번째 칸을 칠하지 않은 그림은 <span class="m"><i>p</i><sub><i>i</i>,<i>k</i></sub> = 0</span>이라 빠집니다. 그래서 <b><span class="m"><i>k</i></span>번째 칸을 칠한 그림의 (예측값 − 정답)만 더해</b> <span class="m"><span class="frac"><span>2</span><span><i>n</i></span></span></span>을 곱하면 됩니다. 예를 들어 숫자 8 그림인데 예측값 <span class="m"><i>z</i><sub><i>i</i></sub></span>가 정답 1보다 작으면 <span class="m"><i>z</i><sub><i>i</i></sub> − <i>t</i><sub><i>i</i></sub> &lt; 0</span>이라 그 그림이 칠한 칸의 기울기를 음수 쪽으로 당기고, 아래 ④에서 그 칸의 가중치가 커집니다.</p>
     </div>
     <div class="mstep">
       <div class="hd">④ 15개를 동시에 이동</div>
@@ -329,7 +330,7 @@ h3{font-size:14.5px;margin:6px 0 0}
     <div class="track" id="track"></div>
     <div class="axis2 num" id="axis2"></div>
   </div>
-  <p class="note">가로축은 가중합 <span class="m"><i>z</i></span>입니다. 기준선(<span class="m"><i>z</i> = 0</span>, <span class="m"><i>P</i>(8) = 50%</span>)의 오른쪽은 8, 왼쪽은 1로 판정합니다. 빨간 테두리는 오답입니다.</p>
+  <p class="note">가로축은 가중합 <span class="m"><i>z</i></span>입니다. 기준선(<span class="m"><i>z</i> = 0</span>)의 오른쪽은 8, 왼쪽(기준선 포함)은 1로 판정합니다. 빨간 테두리는 오답입니다.</p>
   <div class="draw">
     <div class="pad" id="pad" role="group" aria-label="3×5 그림판"></div>
     <div class="out">
@@ -339,7 +340,7 @@ h3{font-size:14.5px;margin:6px 0 0}
       <div class="row" id="addBtns"><button class="b" type="button" data-add="1">1로 자료에 추가</button><button class="b" type="button" data-add="8">8로 자료에 추가</button><button class="b" id="clearPad" type="button">지우기</button></div>
     </div>
   </div>
-  <p class="note">학습 자료에 없던 모양도 그려 보세요. 틀리는 그림은 자료에 추가하고 다시 학습하면 가중치가 달라집니다. 실제 손글씨 숫자 인식은 28×28 = 784개의 화소를 입력으로, 숫자 0~9에 맞춘 10개의 노드를 출력으로 두고 소프트맥스로 판정합니다.</p>
+  <p class="note">학습 자료에 없던 모양도 그려 보세요. 틀리는 그림은 자료에 추가하고 다시 학습하면 가중치가 달라집니다. 실제 손글씨 숫자 인식은 28×28 = 784개의 화소를 입력으로, 숫자 0~9에 맞춘 10개의 노드를 출력으로 둡니다.</p>
 </section>
 </main>
 
@@ -364,8 +365,7 @@ h3{font-size:14.5px;margin:6px 0 0}
   function sum(a){return a.reduce(function(s,v){return s+v},0)}
   function zOf(c){var s=0;for(var k=0;k<15;k++)s+=cur.W[k]*c[k];return s}
   function target(d){return d.c===8?1:-1}
-  function p8(z){return 1/(1+Math.exp(-z))}          // = e^z / (e^z + e^0)
-  function verdict(c){return zOf(c)>0?8:1}             // P(8) > 50%  ⇔  z > 0
+  function verdict(c){return zOf(c)>0?8:1}             // 계단함수: z > 0 이면 1(숫자 8), z ≤ 0 이면 −1(숫자 1)
   function loss(){var n=cur.data.length,t=0;cur.data.forEach(function(d){var e=zOf(d.cells)-target(d);t+=e*e});return n?t/n:0}
   function grads(){
     var n=cur.data.length,G=zeros();
@@ -375,7 +375,6 @@ h3{font-size:14.5px;margin:6px 0 0}
   function eta(){return parseFloat($("eta").value)}
   function fmt(v,k){var s=v.toFixed(k);if(parseFloat(s)===0)s=(0).toFixed(k);return s.replace("-","−")}
   function par(v,k){var s=fmt(v,k);return s.charAt(0)==="−"?"("+s+")":s}
-  function pct(v){return (v*100).toFixed(1)+"%"}
   function mini(cells,hl,big){
     var h='<div class="mini'+(big?' big':'')+'">';
     cells.forEach(function(v,i){var c=(v?'on':'')+(i===hl?' hl':'');h+='<b'+(c?' class="'+c+'"':'')+'></b>'});
@@ -403,55 +402,49 @@ h3{font-size:14.5px;margin:6px 0 0}
     $("okline").innerHTML='맞게 판정한 그림 <span class="g">'+ok+'개</span> / '+n+'개'+(n-ok?' · 잘못 판정한 그림 <span class="x">'+(n-ok)+'개</span>':' · 모두 맞혔습니다');
   }
 
-  /* ---------- 2. 인공신경망 (소프트맥스) ---------- */
+  /* ---------- 2. 인공신경망 (계단함수) ---------- */
   function renderNet(){
     if(cur.feed!=="pad"&&cur.feed>=cur.data.length)cur.feed=cur.data.length?0:"pad";
     var fromData=cur.feed!=="pad",cells=fromData?cur.data[cur.feed].cells:cur.pad;
     $("fedinfo").innerHTML=mini(cells,-1,true)+'<span>입력: '+(fromData?'학습 자료 '+(cur.feed+1)+'번 그림 (정답 '+cur.data[cur.feed].c+')':'내가 그린 그림')+'</span>';
-    var ix=52,ys=[],nodes="",edges="",k,z=zOf(cells),P8=p8(z),v=z>0?8:1;
-    var n8=[176,142],n1=[176,262],r=25,bx=222,bw=60,bh=58,by=202-bh/2,qx=318,qy=202;
+    var ix=52,ox=190,oy=196,r=28,ax=236,aw=42,qx=316,k,edges="",nodes="",z=zOf(cells),is8=z>0,v=is8?8:1;
+    var vc=is8?'var(--eight)':'var(--one)',mx=ax+aw/2;
     for(k=0;k<15;k++){
-      var y=22+k*23+Math.floor(k/3)*6,on=cells[k],w=cur.W[k];ys.push(y);
+      var y=22+k*23+Math.floor(k/3)*6,on=cells[k],w=cur.W[k];
       var col=w>=0?'var(--eight)':'var(--one)',sw=Math.max(0.8,Math.min(7,Math.abs(w)*9));
-      var lx=ix+0.3*(n8[0]-ix),ly=y+0.3*(n8[1]-y);
-      edges+='<line x1="'+ix+'" y1="'+y+'" x2="'+n8[0]+'" y2="'+n8[1]+'" style="stroke:'+col+';stroke-width:'+sw.toFixed(1)+';opacity:'+(on?1:0.28)+(on?'':';stroke-dasharray:3 3')+'"/>'+
+      var lx=ix+0.3*(ox-ix),ly=y+0.3*(oy-y);
+      edges+='<line x1="'+ix+'" y1="'+y+'" x2="'+ox+'" y2="'+oy+'" style="stroke:'+col+';stroke-width:'+sw.toFixed(1)+';opacity:'+(on?1:0.28)+(on?'':';stroke-dasharray:3 3')+'"/>'+
         '<text class="wl" x="'+lx.toFixed(1)+'" y="'+(ly+3.5).toFixed(1)+'" text-anchor="middle" style="'+(on?'':'fill:var(--sub)')+'">'+fmt(w,2)+'</text>';
       nodes+='<circle cx="'+ix+'" cy="'+y+'" r="9" style="fill:'+(on?'var(--pix-on)':'var(--pix-off)')+';stroke:var(--sub);stroke-width:1"/>'+
         '<text x="'+ix+'" y="'+(y+3.5)+'" text-anchor="middle" style="fill:'+(on?'#0e1116':'#ffffff')+'">'+on+'</text>'+
         '<text class="sub" x="'+(ix-14)+'" y="'+(y+3.5)+'" text-anchor="end">p'+subn(k+1)+'</text>';
     }
-    var vc=v===8?'var(--eight)':'var(--one)';
     var h=edges+nodes+
       '<text class="sub" x="'+ix+'" y="388" text-anchor="middle">입력층</text>'+
       '<text class="sub" x="118" y="12" text-anchor="middle">가중치 w₁ ~ w₁₅</text>'+
-      // 출력 노드 2개
-      '<circle cx="'+n8[0]+'" cy="'+n8[1]+'" r="'+r+'" style="fill:var(--panel);stroke:var(--eight);stroke-width:'+(v===8?4:2)+'"/>'+
-      '<text x="'+n8[0]+'" y="'+(n8[1]-7)+'" text-anchor="middle" style="fill:var(--eight);font-weight:700">숫자 8</text>'+
-      '<text class="big" x="'+n8[0]+'" y="'+(n8[1]+11)+'" text-anchor="middle" style="font-size:13.5px">'+fmt(z,2)+'</text>'+
-      '<text class="sub" x="'+n8[0]+'" y="'+(n8[1]-r-6)+'" text-anchor="middle">가중합 z</text>'+
-      '<circle cx="'+n1[0]+'" cy="'+n1[1]+'" r="'+r+'" style="fill:var(--panel);stroke:var(--one);stroke-width:'+(v===1?4:2)+'"/>'+
-      '<text x="'+n1[0]+'" y="'+(n1[1]-7)+'" text-anchor="middle" style="fill:var(--one);font-weight:700">숫자 1</text>'+
-      '<text class="big" x="'+n1[0]+'" y="'+(n1[1]+11)+'" text-anchor="middle" style="font-size:13.5px">0</text>'+
-      '<text class="sub" x="'+n1[0]+'" y="'+(n1[1]+r+13)+'" text-anchor="middle">0으로 고정(기준)</text>'+
-      // 소프트맥스
-      '<line x1="'+(n8[0]+r)+'" y1="'+n8[1]+'" x2="'+bx+'" y2="'+(by+16)+'" style="stroke:'+(v===8?'var(--eight)':'var(--line)')+';stroke-width:'+(v===8?2.5:1.2)+'"/>'+
-      '<line x1="'+(n1[0]+r)+'" y1="'+n1[1]+'" x2="'+bx+'" y2="'+(by+bh-16)+'" style="stroke:'+(v===1?'var(--one)':'var(--line)')+';stroke-width:'+(v===1?2.5:1.2)+'"/>'+
-      '<rect x="'+bx+'" y="'+by+'" width="'+bw+'" height="'+bh+'" rx="6" style="fill:var(--panel);stroke:var(--ink);stroke-width:2"/>'+
-      '<text class="sub" x="'+(bx+bw/2)+'" y="'+(by-7)+'" text-anchor="middle">소프트맥스</text>'+
-      '<text x="'+(bx+7)+'" y="'+(by+20)+'" style="fill:var(--eight);font-weight:700">8</text>'+
-      '<text x="'+(bx+bw-6)+'" y="'+(by+20)+'" text-anchor="end" style="'+(v===8?'font-weight:700':'fill:var(--sub)')+'">'+Math.round(P8*100)+'%</text>'+
-      '<text x="'+(bx+7)+'" y="'+(by+bh-10)+'" style="fill:var(--one);font-weight:700">1</text>'+
-      '<text x="'+(bx+bw-6)+'" y="'+(by+bh-10)+'" text-anchor="end" style="'+(v===1?'font-weight:700':'fill:var(--sub)')+'">'+Math.round((1-P8)*100)+'%</text>'+
-      '<text class="sub" x="'+(bx+bw/2)+'" y="'+(by+bh+14)+'" text-anchor="middle">확률</text>'+
-      // 판정
-      '<line x1="'+(bx+bw)+'" y1="'+qy+'" x2="'+(qx-18)+'" y2="'+qy+'" style="stroke:'+vc+';stroke-width:2.5"/>'+
-      '<circle cx="'+qx+'" cy="'+qy+'" r="18" style="fill:'+vc+'"/>'+
-      '<text class="big" x="'+qx+'" y="'+(qy+5.5)+'" text-anchor="middle" style="fill:var(--panel)">'+v+'</text>'+
-      '<text class="sub" x="'+qx+'" y="'+(qy-26)+'" text-anchor="middle">판정</text>';
+      // 가중합 노드
+      '<circle cx="'+ox+'" cy="'+oy+'" r="'+r+'" style="fill:var(--panel);stroke:var(--ink);stroke-width:2"/>'+
+      '<text class="sub" x="'+ox+'" y="'+(oy-8)+'" text-anchor="middle">가중합 z</text>'+
+      '<text class="big" x="'+ox+'" y="'+(oy+11)+'" text-anchor="middle">'+fmt(z,2)+'</text>'+
+      '<line x1="'+(ox+r)+'" y1="'+oy+'" x2="'+ax+'" y2="'+oy+'" style="stroke:var(--ink);stroke-width:1.5"/>'+
+      // 계단함수 상자
+      '<rect x="'+ax+'" y="'+(oy-21)+'" width="'+aw+'" height="42" rx="6" style="fill:var(--panel);stroke:var(--ink);stroke-width:2"/>'+
+      '<polyline points="'+(ax+6)+','+(oy+11)+' '+mx+','+(oy+11)+'" style="fill:none;stroke:'+(is8?'var(--line)':'var(--one)')+';stroke-width:'+(is8?2:3.5)+'"/>'+
+      '<polyline points="'+mx+','+(oy+11)+' '+mx+','+(oy-11)+'" style="fill:none;stroke:var(--line);stroke-width:2"/>'+
+      '<polyline points="'+mx+','+(oy-11)+' '+(ax+aw-6)+','+(oy-11)+'" style="fill:none;stroke:'+(is8?'var(--eight)':'var(--line)')+';stroke-width:'+(is8?3.5:2)+'"/>'+
+      '<text class="sub" x="'+mx+'" y="'+(oy-40)+'" text-anchor="middle">활성화 함수</text>'+
+      '<text class="sub" x="'+mx+'" y="'+(oy-28)+'" text-anchor="middle">(계단함수)</text>'+
+      '<text class="sub" x="'+mx+'" y="'+(oy+35)+'" text-anchor="middle">기준 0</text>'+
+      // 출력과 판정
+      '<line x1="'+(ax+aw)+'" y1="'+oy+'" x2="'+(qx-20)+'" y2="'+oy+'" style="stroke:'+vc+';stroke-width:2.5"/>'+
+      '<circle cx="'+qx+'" cy="'+oy+'" r="20" style="fill:'+vc+'"/>'+
+      '<text class="big" x="'+qx+'" y="'+(oy+5.5)+'" text-anchor="middle" style="fill:var(--panel)">'+(is8?'1':'−1')+'</text>'+
+      '<text class="sub" x="'+qx+'" y="'+(oy-28)+'" text-anchor="middle">출력</text>'+
+      '<text x="'+qx+'" y="'+(oy+36)+'" text-anchor="middle" style="font-weight:700;font-size:12px;fill:'+vc+'">판정: 숫자 '+v+'</text>';
     if(fromData){
       var ok=v===cur.data[cur.feed].c;
-      h+='<rect x="'+(qx-27)+'" y="'+(qy+26)+'" width="54" height="22" rx="11" style="fill:'+(ok?'var(--good)':'var(--bad)')+'"/>'+
-        '<text x="'+qx+'" y="'+(qy+41)+'" text-anchor="middle" style="fill:#fff;font-weight:700;font-size:12px">'+(ok?'✓ 정답':'✗ 오답')+'</text>';
+      h+='<rect x="'+(qx-27)+'" y="'+(oy+46)+'" width="54" height="22" rx="11" style="fill:'+(ok?'var(--good)':'var(--bad)')+'"/>'+
+        '<text x="'+qx+'" y="'+(oy+61)+'" text-anchor="middle" style="fill:#fff;font-weight:700;font-size:12px">'+(ok?'✓ 정답':'✗ 오답')+'</text>';
     }
     $("net").innerHTML=h;
   }
@@ -477,7 +470,7 @@ h3{font-size:14.5px;margin:6px 0 0}
     var inner=used.length?used.map(function(e){return par(e,3)}).join(' + '):'0';
     var gval=G[gk];
     $("work").innerHTML=
-      '<div><b>'+cellName(gk)+'</b>의 가중치 <span class="m">'+wk+'</span>의 기울기를 지금 가중치로 계산합니다. 파란 테두리 칸을 칠한 그림만 (가중합 − 정답)을 더합니다.</div>'+
+      '<div><b>'+cellName(gk)+'</b>의 가중치 <span class="m">'+wk+'</span>의 기울기를 지금 가중치로 계산합니다. 파란 테두리 칸을 칠한 그림만 (예측값 <span class="m"><i>z</i><sub><i>i</i></sub></span> − 정답 <span class="m"><i>t</i><sub><i>i</i></sub></span>)을 더합니다.</div>'+
       '<div class="wlist">'+pics+'</div>'+
       '<div class="formula">'+dk+' = <span class="frac"><span>2</span><span>'+n+'</span></span> × {'+inner+'} = '+fmt(gval,3)+'</div>'+
       '<div class="formula">'+wk+' ← '+fmt(cur.W[gk],3)+' − '+r+' × '+par(gval,3)+' = '+fmt(cur.W[gk]-r*gval,3)+'</div>'+
@@ -493,7 +486,7 @@ h3{font-size:14.5px;margin:6px 0 0}
   function renderTrack(){
     var z0=tpos(0);
     var h='<div class="zone1" style="width:'+z0+'%"></div><div class="zone8" style="left:'+z0+'%"></div>'+
-      '<div class="thr" style="left:'+z0+'%"><span>기준 0 (50%)</span></div>'+
+      '<div class="thr" style="left:'+z0+'%"><span>기준 0</span></div>'+
       '<div class="lane" style="top:22px">정답 1</div><div class="lane" style="top:48px">정답 8</div>';
     cur.data.forEach(function(d){
       var wrong=verdict(d.cells)!==d.c;
@@ -503,15 +496,10 @@ h3{font-size:14.5px;margin:6px 0 0}
     $("track").innerHTML=h;
   }
   function renderPad(){
-    var btns=$("pad").children,x=sum(cur.pad),z=zOf(cur.pad),P8=p8(z),v=verdict(cur.pad);
+    var btns=$("pad").children,x=sum(cur.pad),z=zOf(cur.pad),v=verdict(cur.pad);
     for(var i=0;i<15;i++){btns[i].classList.toggle("on",!!cur.pad[i]);btns[i].setAttribute("aria-pressed",cur.pad[i]?"true":"false")}
-    $("myCalc").innerHTML='칠한 '+x+'칸의 가중치의 합 <i>z</i> = '+fmt(z,3);
-    var h='<div class="bar" style="color:var(--sub);font-size:12px"><span></span><span>소프트맥스 확률</span><span></span></div>';
-    [[8,P8,'var(--eight)'],[1,1-P8,'var(--one)']].forEach(function(q){
-      h+='<div class="bar'+(x>0&&v===q[0]?' win':'')+'"><span style="color:'+q[2]+'">숫자 '+q[0]+'</span>'+
-        '<div class="tr"><div class="fl" style="left:0;width:'+(q[1]*100).toFixed(1)+'%;background:'+q[2]+'"></div></div><span>'+pct(q[1])+'</span></div>';
-    });
-    $("bars").innerHTML=h;
+    $("myCalc").innerHTML='칠한 '+x+'칸의 가중치의 합 <i>z</i> = '+fmt(z,3)+'<br><i>f</i>(<i>z</i>) = '+(z>0?'1':'−1');
+    $("bars").innerHTML="";
     $("myVerdict").innerHTML=x===0?'<span class="note">칸을 눌러 숫자를 그려 보세요.</span>':'판정 <span class="pill d'+v+'">'+v+'</span>';
   }
 
@@ -553,7 +541,7 @@ h3{font-size:14.5px;margin:6px 0 0}
   }
   function resetW(){
     stopAuto();cur.W=zeros();cur.steps=0;newHist();
-    say("가중치가 모두 0이라 모든 그림의 가중합이 0이고, 두 확률이 50%로 같아 모두 1로 판정합니다. ‘15개 모두 한 번 이동’을 눌러 보세요.");
+    say("가중치가 모두 0이라 모든 그림의 가중합이 0이고, 계단함수의 출력이 −1이라 모두 1로 판정합니다. ‘15개 모두 한 번 이동’을 눌러 보세요.");
     renderAll();
   }
 
