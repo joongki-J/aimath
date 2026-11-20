@@ -1,191 +1,156 @@
-/* ---------- 히어로 모션: 연필 선 하나가 수학 도형이 되었다가 돌아오는 12초 루프 ----------
-   선 → 베지어 곡선 → 사인파 → 원·삼각형·사각형·육각형 → 벌집 → 곱셈 원 → 다시 선.
-   배경 없이 히어로 격자 위에 바로 그려서 사진 칸처럼 떨어져 보이지 않는다.
-   흑연 + 오렌지 포인트만 쓰고, 컷·페이드 없이 모양만 바뀐다.
-   마지막 프레임 = 첫 프레임. */
+/* ---------- 히어로 모션: 추세선과 경사하강법 → 인공신경망, 16초 루프 ----------
+   0~8초  : 점이 찍히고 틀린 기울기의 추세선이 손실함수 L(a) 위 경사하강법(a ← a − r·L′(a))으로
+            최적의 추세선에 맞춰진다.
+   8~16초 : 인공신경망의 노드·연결선이 그려지고 신호가 두 번 흘러 출력 '1', '8'이 켜진다.
+   흑연 + 오렌지(강조) + 연두(결과)만 쓰고, 컷·페이드 대신 선을 그었다 거둬들인다.
+   마지막 프레임 = 첫 프레임(빈 화면). */
 (() => {
   const canvas = document.querySelector("#reelCanvas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
+  const layer = document.createElement("canvas");
+  const lg = layer.getContext("2d");
 
-  const W = 500, H = 588, CX = 250, CY = 262, LOOP = 12, HALF = 230;
+  const W = 500, H = 588, LOOP = 16;
   const MONO = '"IBM Plex Mono", ui-monospace, monospace';
-  const INK = { main: "#15171a", accent: "#ff5a30", muted: "#6b6f74" };
+  const COL = { main: "#15171a", accent: "#ff5a30", muted: "#6b6f74", lime: "#c4e021" };
+  let K = 1, PH = 0, TOOTH = null;
+  const col = c => COL[c] || c;
 
   /* ---------- 이징 ---------- */
   const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
   const lerp = (a, b, u) => a + (b - a) * u;
   // 임계 감쇠 스프링: 목표를 넘지 않는다. 박자보다 0.05초 먼저 출발해 박자에 닿는다.
-  const S = (t, beat, w = 22) => {
-    const x = t - beat + 0.05;
-    return x <= 0 ? 0 : 1 - (1 + w * x) * Math.exp(-w * x);
-  };
+  const S = (t, beat, w = 22) => { const x = t - beat + 0.05; return x <= 0 ? 0 : 1 - (1 + w * x) * Math.exp(-w * x); };
   const span = (t, a, b) => clamp((t - a) / (b - a));
   const hash = n => { const s = Math.sin(n * 12.9898) * 43758.5453; return s - Math.floor(s); };
 
   /* ---------- 도형 ---------- */
-  const path = (pts, o = {}) => ({ k: "path", pts, closed: false, c: "main", w: 3, alpha: 1, ...o });
+  const circlePts = (cx, cy, r, n = 28) => Array.from({ length: n }, (_, i) => { const a = -Math.PI / 2 + i / n * Math.PI * 2; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; });
+  const path = (pts, o = {}) => ({ k: "path", pts, closed: false, c: "main", w: 3, alpha: 1, prog: 1, ...o });
   const shape = (pts, o = {}) => path(pts, { closed: true, ...o });
-  const hatch = (pts, o = {}) => ({ k: "hatch", pts, c: "accent", gap: 10, ang: -Math.PI / 4, prog: 1, w: 1.4, ...o });
-  const text = (str, x, y, o = {}) => ({ k: "text", str, x, y, size: 19, weight: 500, track: 0.16, c: "muted", align: "left", ...o });
+  const hatch = (pts, o = {}) => ({ k: "hatch", pts, c: "accent", gap: 7, ang: -Math.PI / 4, prog: 1, w: 1.4, ...o });
+  const dot = (x, y, r, o = {}) => ({ k: "dot", x, y, r, c: "accent", ...o });
+  const text = (str, x, y, o = {}) => ({ k: "text", str, x, y, size: 17, weight: 500, track: 0.08, c: "muted", align: "left", alpha: 1, ...o });
 
-  const hexPts = (cx, cy, r) => Array.from({ length: 6 }, (_, i) => {
-    const a = -Math.PI / 2 + i * Math.PI / 3;
-    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
-  });
-  const circlePts = (cx, cy, r, n = 24) => Array.from({ length: n }, (_, i) => {
-    const a = i / n * Math.PI * 2;
-    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
-  });
-  const rectPts = (x0, y0, x1, y1) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
-  // 극좌표로 샘플링: 바닥(π/2)에서 시작해 시계 방향. 모양끼리 점 대 점으로 섞을 수 있다.
-  const N = 240;
-  const polar = fn => Array.from({ length: N }, (_, i) => {
-    const a = Math.PI / 2 + i / N * Math.PI * 2, r = fn(a);
-    return [CX + r * Math.cos(a), CY + r * Math.sin(a)];
-  });
-  const regR = (n, r, a0) => a => {
-    const seg = Math.PI * 2 / n, d = (((a - a0) % seg) + seg) % seg;
-    return r * Math.cos(Math.PI / n) / Math.cos(d - Math.PI / n);
-  };
-  const mix = (A, B, u) => A.map((p, i) => [lerp(p[0], B[i][0], u), lerp(p[1], B[i][1], u)]);
+  /* ---------- 1장면 (0~8초): 추세선과 경사하강법 ---------- */
+  const AX = [78, 132, 184, 236, 290, 342, 396], AY = [298, 270, 276, 228, 216, 172, 162];
+  const xbar = AX.reduce((a, b) => a + b) / AX.length, ybar = AY.reduce((a, b) => a + b) / AY.length;
+  const DX = AX.map(x => x - xbar), DY = AY.map(y => y - ybar);
+  // 점들로 실제 계산한 최소제곱 기울기와 손실함수(평균제곱오차)
+  const MSTAR = DX.reduce((s, d, i) => s + d * DY[i], 0) / DX.reduce((s, d) => s + d * d, 0);
+  const M0 = MSTAR + 0.78;
+  const Lf = m => DX.reduce((s, d, i) => s + (DY[i] - m * d) ** 2, 0) / DX.length;
+  const dLf = m => DX.reduce((s, d, i) => s - 2 * d * (DY[i] - m * d), 0) / DX.length;
+  const MR = 0.95, LMIN = Lf(MSTAR), LMAX = Lf(MSTAR + MR);
+  const lx = m => 90 + (m - (MSTAR - MR)) / (2 * MR) * 320;
+  const ly = L => 526 - (L - LMIN) / (LMAX - LMIN) * 128;
+  const STEPS = Array.from({ length: 8 }, (_, k) => MSTAR + (M0 - MSTAR) * Math.pow(0.42, k));
+  const STEP0 = 3.0, STEP_GAP = 0.55;
 
-  // 길이가 그대로인 채 휘는 선: e=0이면 수평선, e=1이면 닫힌 원
-  const R0 = 2 * HALF / (Math.PI * 2);
-  function arcPts(e) {
-    const k = e / R0, L = 2 * HALF, yTop = CY - R0 * e, out = [];
-    for (let i = 0; i < N; i++) {
-      const u = i / N;
-      if (k < 1e-4) { out.push([CX - HALF + L * u, yTop]); continue; }
-      const rho = 1 / k, th = -Math.PI / 2 + (u - 0.5) * L / rho;
-      out.push([CX + rho * Math.cos(th), yTop + rho + rho * Math.sin(th)]);
+  function regression(t, ops) {
+    const out = 1 - S(t, 7.2, 9);
+    ops.push(path([[48, 66], [48, 340], [450, 340]], { c: "muted", w: 1.6, prog: Math.min(S(t, 0.1, 10), out) }));
+    const axisText = Math.min(S(t, 0.3), out);
+    ops.push(text("x", 444, 362, { size: 14, alpha: axisText }), text("y", 30, 74, { size: 14, alpha: axisText }));
+    AX.forEach((x, i) => { const r = 6.5 * S(t, 0.3 + i * 0.1, 18) * out; if (r > 0.2) ops.push(dot(x, AY[i], r, { c: "main" })); });
+
+    let m = M0;
+    for (let k = 0; k < STEPS.length - 1; k++) m += (STEPS[k + 1] - STEPS[k]) * S(t, STEP0 + STEP_GAP * k, 14);
+    const lineY = x => ybar + m * (x - xbar);
+
+    const best = Math.min(S(t, 6.6, 10), out);
+    if (best > 0.01) ops.push(path([[50, ybar + MSTAR * (50 - xbar)], [440, ybar + MSTAR * (440 - xbar)]], { c: "lime", w: 11, alpha: 0.9, prog: best }));
+    ops.push(path([[50, lineY(50)], [440, lineY(440)]], { w: 3, prog: Math.min(S(t, 1.2, 10), out) }));
+    const res = Math.min(S(t, 1.8, 12), out) * (1 - 0.6 * S(t, 6.6, 10));
+    if (res > 0.01) AX.forEach((x, i) => ops.push(path([[x, AY[i]], [x, lineY(x)]], { c: "accent", w: 2, prog: res })));
+
+    const curve = Array.from({ length: 60 }, (_, i) => { const mm = MSTAR - MR + 2 * MR * i / 59; return [lx(mm), ly(Lf(mm))]; });
+    ops.push(path([[80, 538], [420, 538]], { c: "muted", w: 1.4, prog: Math.min(S(t, 1.6, 10), out) }));
+    ops.push(path(curve, { w: 2.6, prog: Math.min(S(t, 1.8, 8), out) }));
+    ops.push(text("L(a)", 64, 396, { size: 15, c: "main", alpha: Math.min(S(t, 2.1), out) }));
+
+    const ball = Math.min(S(t, 2.5, 16), out);
+    if (ball > 0.01) {
+      const bx = lx(m), by = ly(Lf(m));
+      const g = dLf(m) * (-128 / (LMAX - LMIN)) / (320 / (2 * MR));
+      const len = 46 / Math.hypot(1, g), tan = Math.min(span(t, 2.6, 2.9), 1 - span(t, 6.4, 6.7), out);
+      if (tan > 0.01) ops.push(path([[bx - len, by - g * len], [bx + len, by + g * len]], { c: "accent", w: 2, dash: true, prog: tan }));
+      STEPS.forEach((_, k) => { if (k > 0 && t > STEP0 + STEP_GAP * (k - 1) + 0.3) ops.push(dot(lx(STEPS[k - 1]), ly(Lf(STEPS[k - 1])), 3 * out, { c: "muted" })); });
+      ops.push(dot(bx, by, 9 * ball));
     }
-    return out;
+    const kNow = STEPS.reduce((n, _, k) => (k < STEPS.length - 1 && t > STEP0 + STEP_GAP * k ? k + 1 : n), 0);
+    ops.push(text(`k = ${kNow}`, 420, 396, { size: 14, align: "right", alpha: Math.min(S(t, 2.7), out) }));
+    ops.push(text("a ← a − r·L′(a)", 250, 570, { size: 17, c: "main", align: "center", weight: 600, alpha: Math.min(S(t, 2.4), out) }));
   }
 
-  /* ---------- 1마디 CURVE (0~2초) ---------- */
-  function curve(t, ops) {
-    const P0 = [CX - HALF, CY], P3 = [CX + HALF, CY];
-    const hl = 160 * S(t, 0.1, 18) * (1 - S(t, 1.0));
-    const swing = S(t, 0.5, 18), wave = S(t, 1.0, 16), gather = S(t, 1.5, 18);
-    const copies = t >= 0.45 && t < 1.95 ? 7 : 0;
-    const bez = (a, u) => {
-      const P1 = [P0[0] + hl * Math.cos(a), P0[1] - hl * Math.sin(a)];
-      const P2 = [P3[0] - hl * Math.cos(a), P3[1] + hl * Math.sin(a)];
-      const v = 1 - u;
-      return [0, 1].map(k => v * v * v * P0[k] + 3 * v * v * u * P1[k] + 3 * v * u * u * P2[k] + u * u * u * P3[k]);
-    };
-    for (let j = copies; j >= 0; j--) {
-      const deg = j === 0 ? 58 - 116 * swing : 58 - 116 * swing * (j / 8);
-      const a = deg * Math.PI / 180, pts = [];
-      for (let i = 0; i <= 64; i++) {
-        const u = i / 64, b = bez(a, u);
-        const amp = 46 * (1 - gather) * Math.pow(Math.sin(Math.PI * u), 0.6);
-        const sy = CY + amp * Math.sin(Math.PI * 2 * 2.75 * u + j * 0.45 * (1 - gather) - (t - 1) * 7);
-        pts.push([lerp(b[0], lerp(P0[0], P3[0], u), wave), lerp(b[1], sy, wave)]);
+  /* ---------- 2장면 (8~16초): 인공신경망 ---------- */
+  const LAY = [3, 4, 4, 2], LX = [82, 192, 308, 420], GAP = 74, CYB = 262;
+  const NODES = LAY.map((n, l) => Array.from({ length: n }, (_, i) => [LX[l], CYB + (i - (n - 1) / 2) * GAP]));
+  const EDGES = [];
+  for (let l = 0; l < 3; l++) NODES[l].forEach((a, i) => NODES[l + 1].forEach((b, j) => EDGES.push({ l, a, b, i, j, id: EDGES.length })));
+  const WAVES = [2.6, 4.6], WIN = [0, 1];   // 첫 신호는 '1', 둘째 신호는 '8'
+
+  // 신호가 한 번 지나갈 때마다 가중치(연결선 굵기)가 바뀐다
+  function weightAt(e, t) {
+    let ep = 0; WAVES.forEach(ws => { if (t > ws + 2.0) ep++; });
+    const prev = 0.7 + 3.2 * hash(e.id * 7.31 + Math.max(0, ep - 1) * 3.7), cur = 0.7 + 3.2 * hash(e.id * 7.31 + ep * 3.7);
+    return ep === 0 ? cur : lerp(prev, cur, S(t, WAVES[ep - 1] + 2.0, 10));
+  }
+
+  function network(t, ops) {
+    const out = 1 - S(t, 6.7, 9);
+    EDGES.forEach(e => {
+      const p = Math.min(span(t, 0.8 + 0.45 * e.l + 0.02 * e.i, 1.4 + 0.45 * e.l + 0.02 * e.i), 1 - S(t, 6.6 + 0.15 * (2 - e.l), 9));
+      if (p > 0.01) ops.push(path([e.a, e.b], { w: weightAt(e, t), alpha: 0.42, prog: p }));
+    });
+
+    const active = new Map();
+    const raise = (key, v) => active.set(key, Math.max(active.get(key) || 0, v));
+    WAVES.forEach((ws, wi) => {
+      for (let l = 0; l < 3; l++) {
+        const u = span(t, ws + 0.5 * l, ws + 0.5 * (l + 1));
+        if (u > 0 && u < 1) EDGES.filter(e => e.l === l).forEach(e => {
+          if (l < 2 && hash(e.j * 5.1 + wi * 2.3 + l) < 0.25) return;
+          ops.push(dot(lerp(e.a[0], e.b[0], u), lerp(e.a[1], e.b[1], u), 3.4));
+        });
+        NODES[l + 1].forEach((n, j) => {
+          const on = l === 2 ? j === WIN[wi] : hash(j * 5.1 + wi * 2.3 + l + 1) >= 0.3;
+          if (on) raise((l + 1) + "-" + j, S(t, ws + 0.5 * (l + 1), 16) * (1 - S(t, ws + 2.05, 10)));
+        });
       }
-      ops.push(path(pts, j === 0 ? { w: 3 } : { c: "accent", w: 1.6, alpha: 0.85 }));
-    }
-    if (hl > 2) {   // 펜 툴 핸들
-      const a = (58 - 116 * swing) * Math.PI / 180;
-      const P1 = [P0[0] + hl * Math.cos(a), P0[1] - hl * Math.sin(a)];
-      const P2 = [P3[0] - hl * Math.cos(a), P3[1] + hl * Math.sin(a)];
-      ops.push(path([P0, P1], { c: "accent", w: 1.5 }), path([P3, P2], { c: "accent", w: 1.5 }));
-      for (const p of [P0, P3]) ops.push(shape(rectPts(p[0] - 6, p[1] - 6, p[0] + 6, p[1] + 6), { c: "accent", w: 2 }));
-      for (const p of [P1, P2]) ops.push(shape(circlePts(p[0], p[1], 6, 16), { c: "accent", w: 2 }));
-    }
-  }
+      const v0 = S(t, ws, 16) * (1 - S(t, ws + 2.05, 10));
+      NODES[0].forEach((n, j) => raise("0-" + j, v0));
+    });
 
-  /* ---------- 2마디 MORPH (2~4초): 원 → 삼각형 → 사각형 → 육각형 ---------- */
-  function morph(t, ops) {
-    const curl = S(t, 2.1, 12);
-    let pts = arcPts(curl);
-    pts = mix(pts, polar(() => 150), S(t, 2.3, 16));
-    const m1 = S(t, 2.5);
-    pts = mix(pts, polar(regR(3, 178, -Math.PI / 2 + Math.PI * 2 / 3 * m1)), m1);
-    pts = mix(pts, polar(regR(4, 170, -Math.PI / 4)), S(t, 3.0));
-    pts = mix(pts, polar(regR(6, 165, -Math.PI / 2)), S(t, 3.5));
-    const hp = span(t, 2.6, 3.5), cp = span(t, 3.55, 3.95);
-    if (hp > 0) ops.push(hatch(pts, { prog: hp }));
-    if (cp > 0) ops.push(hatch(pts, { prog: cp, ang: Math.PI / 4 }));
-    ops.push(path(pts, { closed: curl > 0.97 || t > 2.5 }));
-  }
+    let idx = 0;
+    NODES.forEach((layerNodes, l) => layerNodes.forEach((n, j) => {
+      const r = 17, appear = Math.min(S(t, 0.1 + 0.05 * idx++, 16), out);
+      const v = active.get(l + "-" + j) || 0;
+      if (v > 0.01) ops.push(hatch(circlePts(n[0], n[1], r - 1), { c: l === 3 ? "lime" : "accent", prog: v * out, gap: 5, w: l === 3 ? 2.2 : 1.4 }));
+      if (appear > 0.01) ops.push(shape(circlePts(n[0], n[1], r), { w: 2.6, prog: appear }));
+    }));
 
-  /* ---------- 3마디 TILE (4~6초): 벌집이 퍼졌다가 다시 모인다 ---------- */
-  const HR = 52, SP = Math.sqrt(3) * HR * 1.08;
-  const CELLS = (() => {
-    const out = [[0, 0, 0]];
-    for (const [q, r] of [[1, 0], [0, 1], [-1, 1], [-1, 0], [0, -1], [1, -1]]) out.push([q, r, 1]);
-    for (let q = -2; q <= 2; q++) for (let r = -2; r <= 2; r++) {
-      if (Math.max(Math.abs(q), Math.abs(r), Math.abs(q + r)) === 2) out.push([q, r, 2]);
-    }
-    return out.map(([q, r, ring], i) => ({ i, ring, x: SP * (q + r / 2), y: SP * Math.sqrt(3) / 2 * r }));
-  })();
-  function tile(t, ops) {
-    const back = S(t, 5.5, 16);                      // 다시 가운데로 모인다
-    const rc = lerp(lerp(165, HR, S(t, 4.0)), 165, back);
-    const sweep = lerp(-100, W + 100, span(t, 4.95, 5.45));
-    const erase = 1 - span(t, 5.6, 5.95);            // 빗금이 한 줄씩 지워진다
-    for (const c of CELLS) {
-      let x = 0, y = 0, r = rc;
-      if (c.ring) {
-        const f = c.ring === 1 ? S(t, 4.05 + 0.03 * (c.i - 1)) : S(t, 4.5 + 0.015 * (c.i - 7));
-        if (f < 0.01 || back > 0.9) continue;
-        const k = (c.ring === 1 ? f : lerp(0.5, 1, f)) * (1 - back);
-        x = c.x * k; y = c.y * k; r = lerp(HR, rc, back);
-      }
-      const pts = hexPts(CX + x, CY + y, r);
-      if (c.ring === 0) {
-        ops.push(hatch(pts, { prog: erase }), hatch(pts, { prog: erase, ang: Math.PI / 4 }));
-      } else {
-        const prog = clamp((sweep - (CX + x - r)) / (2 * r)) * erase;
-        if (prog > 0) ops.push(hatch(pts, { gap: 6, prog }));
-      }
-      ops.push(shape(pts, { w: c.ring ? 2.6 : 3 }));
-    }
-  }
-
-  /* ---------- 4~5마디 CHORD·MODULO (6~10초): 홈페이지의 곱셈 원 ---------- */
-  const RC = 205, M = 120;
-  const pt = i => { const a = i / M * Math.PI * 2 - Math.PI / 2; return [CX + RC * Math.cos(a), CY + RC * Math.sin(a)]; };
-  const kAt = t => lerp(2 + S(t, 7.5) + S(t, 8.0) + S(t, 8.5) + S(t, 9.0), 1, S(t, 10.0, 10));
-  function chords(t, ops) {
-    const toCircle = S(t, 6.0, 16);
-    if (t < 10.3) ops.push(shape(mix(polar(regR(6, 165, -Math.PI / 2)), polar(() => RC), toCircle), { w: 3 }));
-    const k = kAt(t), cnt = Math.floor(M * span(t, 6.45, 7.0)), segs = [];
-    for (let i = 0; i < cnt; i++) segs.push([...pt(i), ...pt(i * k)]);
-    ops.push({ k: "segs", segs, c: "main", w: 0.9, alpha: 0.42 });
-    if (t >= 6.95 && t < 10.05) {
-      const li = ((t - 6.95) * 26) % M, a = pt(li), b = pt(li * k);
-      ops.push({ k: "segs", segs: [[...a, ...b]], c: "accent", w: 2.8, alpha: 1 }, { k: "dot", x: a[0], y: a[1], r: 7, c: "accent" });
-    }
-    const s = `i ↦ (${k.toFixed(2)} × i) mod ${M}`;
-    const n = Math.round(s.length * span(t, 6.95, 7.3) * (1 - span(t, 10.0, 10.3)));
-    ops.push(text(s.slice(0, n), CX, CY + RC + 58, { align: "center", size: 15, track: 0.02 }));
-  }
-
-  /* ---------- 6마디 RETURN (10~12초): 원이 줄어들고 펴져 처음의 선으로 ---------- */
-  function unwind(t, ops) {
-    const shrink = S(t, 10.5, 14), uncurl = 1 - S(t, 11.0, 12);
-    const pts = mix(polar(() => RC), arcPts(uncurl), shrink);
-    ops.push(path(pts, { closed: uncurl > 0.97 }));
+    const ta = Math.min(S(t, 1.0), out);
+    ["x₁", "x₂", "x₃"].forEach((s, i) => ops.push(text(s, LX[0] - 36, NODES[0][i][1] + 6, { size: 16, align: "right", c: "main", alpha: ta })));
+    ["1", "8"].forEach((s, j) => {
+      let lit = 0; WAVES.forEach((ws, wi) => { if (WIN[wi] === j) lit = Math.max(lit, S(t, ws + 1.5, 16) * (1 - S(t, ws + 2.05, 10))); });
+      ops.push(text(s, LX[3] + 30, NODES[3][j][1] + 8, { size: 22, weight: 600, c: lit > 0.5 ? "accent" : "main", alpha: ta }));
+    });
+    ops.push(text("입력", LX[0], 96, { size: 13, align: "center", alpha: ta }),
+      text("은닉층", (LX[1] + LX[2]) / 2, 96, { size: 13, align: "center", alpha: ta }),
+      text("출력", LX[3], 96, { size: 13, align: "center", alpha: ta }));
+    ops.push(text("y = f(Σ wᵢxᵢ + b)", 250, 552, { size: 17, c: "main", weight: 600, align: "center", alpha: Math.min(S(t, 1.6), out) }));
   }
 
   function build(t) {
     const ops = [];
-    if (t < 2) curve(t, ops);
-    else if (t < 4) morph(t, ops);
-    else if (t < 6) tile(t, ops);
-    if (t >= 6 && t < 10.6) chords(t, ops);
-    if (t >= 10.3) unwind(t, ops);
+    if (t < 8.2) regression(t, ops);
+    if (t > 7.8) network(t - 8, ops);
     return ops;
   }
 
-  /* ---------- 렌더러: 연필로 그어 종이에 곱한다 ---------- */
-  let K = 1, PH = 0, TOOTH = null;
-  const layer = document.createElement("canvas"), lg = layer.getContext("2d");
-  const col = c => INK[c];
-
+  /* ---------- 연필 렌더러 ---------- */
   function resample(pts, closed, step) {
     const src = closed ? pts.concat([pts[0]]) : pts, out = [];
     let s = 0;
@@ -199,26 +164,24 @@
     if (out.length) { const l = src[src.length - 1], p = out[out.length - 1]; out.push([l[0], l[1], p[2], p[3], s]); }
     return out;
   }
-  const trace = (g, pts, closed) => {
-    g.beginPath();
-    pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
-    if (closed) g.closePath();
-  };
 
   // 연필: 다시 샘플링해 느린 사인파로 흔들고, 초당 8번 위상을 바꾼다. 두 번 긋는다.
-  function pencil(g, pts, closed, w, color, alpha, seed) {
-    const rs = resample(pts, closed, 6);
-    if (rs.length < 2) return;
-    g.strokeStyle = color; g.lineCap = "round"; g.lineJoin = "round";
-    for (const [lw, al, amp, sd] of [[w, 0.9, 1.2, 0], [w * 0.5, 0.4, 2.6, 7.7]]) {
-      g.globalAlpha = al * alpha; g.lineWidth = lw; g.beginPath();
+  // prog(0~1)만큼만 앞에서부터 그어서 '그리기'와 '거둬들이기'를 표현한다.
+  function pencil(g, op, seed) {
+    let rs = resample(op.pts, op.closed, 6);
+    if (rs.length < 2 || op.prog <= 0.01) return;
+    if (op.prog < 1) { const lim = rs[rs.length - 1][4] * op.prog; rs = rs.filter(p => p[4] <= lim); if (rs.length < 2) return; }
+    g.strokeStyle = col(op.c); g.lineCap = "round"; g.lineJoin = "round";
+    if (op.dash) g.setLineDash([7, 7]);
+    for (const [lw, al, amp, sd] of [[op.w, 0.9, 1.1, 0], [op.w * 0.5, 0.4, 2.4, 7.7]]) {
+      g.globalAlpha = al * op.alpha; g.lineWidth = lw; g.beginPath();
       rs.forEach(([x, y, nx, ny, s], i) => {
         const o = amp * (Math.sin(s * 0.021 + PH * 1.7 + seed + sd) + 0.5 * Math.sin(s * 0.063 + PH * 2.9 + seed * 2.3 + sd));
         i ? g.lineTo(x + nx * o, y + ny * o) : g.moveTo(x + nx * o, y + ny * o);
       });
       g.stroke();
     }
-    g.globalAlpha = 1;
+    g.setLineDash([]); g.globalAlpha = 1;
   }
 
   // 빗금: 한 줄씩 그어진다(prog). 줄마다 조금씩 비틀린다.
@@ -229,12 +192,11 @@
     const proj = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].map(([x, y]) => x * n[0] + y * n[1]);
     const lo = Math.min(...proj), hi = Math.max(...proj), L = Math.hypot(x1 - x0, y1 - y0) + 4;
     const mx = (x0 + x1) / 2, my = (y0 + y1) / 2, mo = mx * n[0] + my * n[1];
-    const start = Math.ceil(lo / op.gap) * op.gap, count = Math.floor((hi - start) / op.gap) + 1;
-    const lim = Math.floor(count * op.prog);
-    g.save(); trace(g, op.pts, true); g.clip();
-    g.strokeStyle = col(op.c); g.lineWidth = op.w; g.globalAlpha = 0.75; g.beginPath();
+    const start = Math.ceil(lo / op.gap) * op.gap, count = Math.floor((hi - start) / op.gap) + 1, lim = Math.floor(count * op.prog);
+    g.save(); g.beginPath(); op.pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); g.clip();
+    g.strokeStyle = col(op.c); g.lineWidth = op.w; g.globalAlpha = 0.8; g.beginPath();
     for (let i = 0; i < lim; i++) {
-      const o = start + i * op.gap + (hash(i * 3.1 + PH) - 0.5) * 1.6;
+      const o = start + i * op.gap + (hash(i * 3.1 + PH) - 0.5) * 1.4;
       const cx = mx + n[0] * (o - mo), cy = my + n[1] * (o - mo), tw = (hash(i + PH * 5.3) - 0.5) * 0.03;
       g.moveTo(cx - d[0] * L - n[0] * L * tw, cy - d[1] * L - n[1] * L * tw);
       g.lineTo(cx + d[0] * L + n[0] * L * tw, cy + d[1] * L + n[1] * L * tw);
@@ -243,8 +205,8 @@
   }
 
   function drawText(g, op) {
-    if (!op.str) return;
-    g.save();
+    if (!op.str || op.alpha <= 0.01) return;
+    g.save(); g.globalAlpha = clamp(op.alpha);
     g.font = `${op.weight} ${op.size}px ${MONO}`;
     if ("letterSpacing" in g) g.letterSpacing = `${op.track * op.size}px`;
     g.textAlign = op.align; g.textBaseline = "alphabetic";
@@ -258,10 +220,9 @@
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     lg.setTransform(1, 0, 0, 1, 0, 0); lg.clearRect(0, 0, layer.width, layer.height); lg.setTransform(K, 0, 0, K, 0, 0);
-    ops.forEach((o, idx) => {
-      if (o.k === "path") pencil(lg, o.pts, o.closed, o.w, col(o.c), o.alpha, idx * 0.37);
-      else if (o.k === "segs") o.segs.forEach((s, i) => pencil(lg, [[s[0], s[1]], [s[2], s[3]]], false, o.w, col(o.c), o.alpha, i));
-      else if (o.k === "hatch") hatchLines(lg, o);
+    ops.forEach((o, i) => {
+      if (o.k === "path") pencil(lg, o, i * 0.37);
+      else if (o.k === "hatch") { if (o.prog > 0.01) hatchLines(lg, o); }
       else if (o.k === "dot") { lg.fillStyle = col(o.c); lg.beginPath(); lg.arc(o.x, o.y, o.r, 0, Math.PI * 2); lg.fill(); }
       else if (o.k === "text") drawText(lg, o);
     });
@@ -304,7 +265,7 @@
     requestAnimationFrame(frame);
   }
   // 학교에서 관리하는 PC는 '애니메이션 효과'가 꺼져 있는 경우가 많아서,
-  // 이전 곱셈 원처럼 움직임 줄이기 설정과 관계없이 항상 재생한다.
+  // 움직임 줄이기 설정과 관계없이 항상 재생한다.
   requestAnimationFrame(frame);
 
   // 확인용: heroReel.seek(8.2)로 특정 시각을 멈춰 볼 수 있다. seek(null)이면 다시 재생.
