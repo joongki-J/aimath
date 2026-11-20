@@ -98,6 +98,15 @@ const TOOLS = [
     thumb: "./thumbnails/geogebra-classic.png"
   },
   {
+    title: "GeoGebra로 최적의 추세선 찾기 (실습 데이터)",
+    subject: "4단원",
+    type: "데이터",
+    symbol: "⟋",
+    description: "지오지브라 스프레드시트 실습용 x, y 데이터(4개)와 따라 하기 안내입니다. 복사 버튼을 누르면 숫자만 두 열로 붙여 넣을 수 있습니다.",
+    tags: ["지오지브라", "추세선", "스프레드시트", "데이터", "복사"],
+    url: "./geogebra-data/"
+  },
+  {
     title: "손실함수 분석기",
     subject: "4단원",
     type: "실습",
