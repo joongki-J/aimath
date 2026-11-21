@@ -245,6 +245,16 @@ const TOOLS = [
     thumb: "./thumbnails/u5-kma.png"
   },
   {
+    title: "대구 기온 자료 (2025년)",
+    subject: "5단원",
+    type: "엑셀",
+    symbol: "℃",
+    description: "기상자료개방포털에서 내려받은 대구의 2025년 1월 1일~12월 31일 일별 평균·최저·최고기온 자료(365일)입니다.",
+    tags: ["엑셀", "기상청", "기온", "최고기온", "대구", "공공데이터"],
+    url: "./downloads/u5-daegu-temp-2025.xlsx",
+    download: "대구 기온 자료 2025.xlsx"
+  },
+  {
     title: "AskMath 인공지능 수학 자료",
     subject: "참고 자료",
     type: "자료실",
