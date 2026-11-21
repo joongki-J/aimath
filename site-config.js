@@ -52,7 +52,7 @@ const TOOLS = [
     symbol: "✺",
     description: "카메라로 동작을 인식해 기지개 동작으로 점수를 겨루는 복불복 게임입니다. 카메라 권한이 필요합니다.",
     tags: ["아이스브레이킹", "스트레칭", "분위기 전환"],
-    url: "https://gemini.google.com/share/5cc4e5c7faf0?skid=c0253429-e452-4673-9001-f66858c643fe",
+    url: "https://gwondalhyeon.github.io/math-webapps/icebreaking/stretch-pangpang/",
     thumb: "./thumbnails/ice-stretch.png"
   },
   {
