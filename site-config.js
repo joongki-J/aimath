@@ -225,6 +225,15 @@ const TOOLS = [
     url: "https://docs.google.com/spreadsheets/d/1_ZEVIAyzp-hDfri8ym-af1jCbmwbC7LhWX7oLTAkxkU/copy"
   },
   {
+    title: "5단원 실습자료 2 (스프레드시트)",
+    subject: "5단원",
+    type: "구글 시트",
+    symbol: "▦",
+    description: "5단원 실습자료 2를 구글 스프레드시트로 여는 버전입니다. 누르면 내 구글 드라이브에 사본을 만들어 바로 계산해 볼 수 있습니다. (구글 로그인 필요)",
+    tags: ["구글 시트", "스프레드시트", "실습지", "최고기온", "빙수", "경사하강법", "학습률"],
+    url: "https://docs.google.com/spreadsheets/d/1HxSJVM3QdP8S6HzyL0fCmZsP06jzm2OQr9Z07Yc-zIE/copy"
+  },
+  {
     title: "인공지능 수학탐구 보고서 양식",
     subject: "5단원",
     type: "양식",
