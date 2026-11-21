@@ -149,6 +149,15 @@ const TOOLS = [
     thumb: "./thumbnails/gd-3d.png"
   },
   {
+    title: "인공신경망으로 보는 추세선",
+    subject: "4단원",
+    type: "실습",
+    symbol: "⊸",
+    description: "추세선 y = ax, y = ax + b를 입력·가중치·편향·항등함수로 이루어진 인공신경망으로 보고, 자료를 하나씩 넣어 오차와 기울기를 모은 뒤 경사하강법으로 학습합니다.",
+    tags: ["인공신경망", "추세선", "y=ax", "y=ax+b", "가중치", "편향", "손실함수", "경사하강법", "미분", "편미분"],
+    url: "./trendline-nn/"
+  },
+  {
     title: "화소별 가중치로 숫자 구분하기",
     subject: "4단원",
     type: "실습",
