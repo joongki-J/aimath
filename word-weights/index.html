@@ -380,7 +380,7 @@ canvas{background:#fff;border-color:#e3ded4;border-radius:12px}
     </div>
   </div>
 </header>
-<p id="intro" class="intro">영화 리뷰 문장에 어떤 단어가 들어 있는지 보고 <b>긍정</b>인지 <b>부정</b>인지 판정합니다. 단어마다 가중치를 하나씩 두고, 문장에 들어 있는 단어의 가중치를 모두 더한 <b>가중합</b> <span class="m"><i>z</i></span>를 구합니다. 활성화 함수는 <b>계단함수</b>로, 가중합이 0보다 크면 1(긍정), 0 이하이면 −1(부정)을 출력합니다. 학습하는 가중치는 9개입니다.</p>
+<p id="intro" class="intro">영화 리뷰 문장에 어떤 단어가 들어 있는지 보고 <b>긍정</b>인지 <b>부정</b>인지 판정합니다. 단어마다 가중치를 하나씩 두고, 문장에 들어 있는 단어의 가중치를 모두 더한 <b>가중합</b> <span class="m"><i>z</i></span>를 구합니다. 활성화 함수는 <b>계단함수</b>로, 가중합이 0 이상이면 1(긍정), 0보다 작으면 −1(부정)을 출력합니다. 학습하는 가중치는 9개입니다.</p>
 
 <div class="cols">
 <section aria-labelledby="h1">
@@ -397,7 +397,7 @@ canvas{background:#fff;border-color:#e3ded4;border-radius:12px}
   <div class="fedinfo" id="fedinfo"></div>
   <div class="netwrap"><svg id="net" viewBox="0 0 346 400" role="img" aria-label="단어 입력 노드 9개, 출력 노드 1개, 계단함수로 이루어진 인공신경망"></svg></div>
   <div class="legend"><span><i style="background:var(--pos)"></i>양수 가중치</span><span><i style="background:var(--neg)"></i>음수 가중치</span><span>선이 굵을수록 절댓값이 큽니다</span></div>
-  <p class="note">활성화 함수는 <b>계단함수</b>입니다. <span class="m"><i>f</i>(<i>z</i>) = 1 (<i>z</i> &gt; 0)</span>, <span class="m"><i>f</i>(<i>z</i>) = −1 (<i>z</i> ≤ 0)</span>이고, 출력이 1이면 긍정, −1이면 부정으로 판정합니다. 목푯값도 긍정 문장이면 1, 부정 문장이면 −1로 두었으므로 출력과 목푯값이 같으면 맞게 판정한 것입니다.</p>
+  <p class="note">활성화 함수는 <b>계단함수</b>입니다. <span class="m"><i>f</i>(<i>z</i>) = 1 (<i>z</i> ≥ 0)</span>, <span class="m"><i>f</i>(<i>z</i>) = −1 (<i>z</i> &lt; 0)</span>이고, 출력이 1이면 긍정, −1이면 부정으로 판정합니다. 목푯값도 긍정 문장이면 1, 부정 문장이면 −1로 두었으므로 출력과 목푯값이 같으면 맞게 판정한 것입니다.</p>
 </section>
 </div>
 
@@ -496,7 +496,8 @@ canvas{background:#fff;border-color:#e3ded4;border-radius:12px}
 
   function zOf(p){var s=0;for(var k=0;k<N;k++)s+=cur.W[k]*p[k];return s}
   function target(d){return d.c===0?1:-1}
-  function verdict(p){return zOf(p)>0?0:1}             // 계단함수: z > 0 이면 1(긍정), z ≤ 0 이면 −1(부정)
+  function verdict(p){return isOn(zOf(p))?0:1}         // 계단함수: z ≥ 0 이면 1(긍정), z < 0 이면 −1(부정)
+  function isOn(z){return z>=-1e-9}                    // 소수 계산 오차로 0이 −0.0000…1이 되는 경우도 0으로 봄
   function loss(){var n=cur.data.length,t=0;cur.data.forEach(function(d){var e=zOf(d.p)-target(d);t+=e*e});return n?t/n:0}
   function grads(){
     var n=cur.data.length,G=zeros();
@@ -538,7 +539,7 @@ canvas{background:#fff;border-color:#e3ded4;border-radius:12px}
     if(cur.feed!=="mine"&&cur.feed>=cur.data.length)cur.feed=cur.data.length?0:"mine";
     var fromData=cur.feed!=="mine",inp=curInput(),p=inp.p;
     $("fedinfo").innerHTML='<span>입력: '+(fromData?(cur.feed+1)+'번 문장 (실제 감정 '+CL[cur.data[cur.feed].c]+')':'내가 쓴 문장')+'</span><span class="ftx">'+(inp.text?mark(inp.text,-1):'(없음)')+'</span>';
-    var ix=70,oy=200,ox=196,r=28,ax=238,aw=42,qx=316,k,edges="",nodes="",gap=Math.min(42,360/(N-1)),z=zOf(p),pos=z>0,v=pos?0:1;
+    var ix=70,oy=200,ox=196,r=28,ax=238,aw=42,qx=316,k,edges="",nodes="",gap=Math.min(42,360/(N-1)),z=zOf(p),pos=isOn(z),v=pos?0:1;
     var vc=pos?'var(--pos)':'var(--neg)',mx=ax+aw/2;
     for(k=0;k<N;k++){
       var y=oy-(N-1)*gap/2+k*gap,on=p[k],w=cur.W[k];
@@ -688,12 +689,12 @@ canvas{background:#fff;border-color:#e3ded4;border-radius:12px}
     else{
       h+='<div class="ftx">'+mark(t,-1)+'</div>';
       var z=zOf(p),v=verdict(p);
-      if(!has.length)h+='<p class="note">사전에 있는 단어가 없어서 가중합이 0입니다. 계단함수의 출력이 −1이라 부정으로 판정합니다.</p>';
+      if(!has.length)h+='<p class="note">사전에 있는 단어가 없어서 가중합이 0입니다. 계단함수의 출력이 1이라 긍정으로 판정합니다.</p>';
       else{
         var terms=has.map(function(k){return wsub(k)}).join(' + '),vals=has.map(function(k,q){var s=fmt(cur.W[k],2);return q===0?s:(cur.W[k]<-0.005?' − '+s.replace('−',''):' + '+s)}).join('');
         h+='<div class="formula num">가중합 <i>z</i> = '+terms+(has.length>1?' = '+vals:'')+' = <b>'+fmt(z,2)+'</b></div>';
       }
-      h+='<div class="formula num"><i>f</i>(<i>z</i>) = '+(z>0?'1':'−1')+'</div>';
+      h+='<div class="formula num"><i>f</i>(<i>z</i>) = '+(isOn(z)?'1':'−1')+'</div>';
       h+='<div>판정 <span class="pill '+(v===0?'pp':'pn')+'">'+CL[v]+'</span></div>';
     }
     $("mine").innerHTML=h;
@@ -768,7 +769,7 @@ canvas{background:#fff;border-color:#e3ded4;border-radius:12px}
   }
   function resetW(){
     stopAuto();haReset();cur.W=zeros();cur.steps=0;newHist();
-    say("가중치가 모두 0이라 모든 문장의 가중합이 0이고, 계단함수의 출력이 −1이라 모두 부정으로 판정합니다. ‘9개 모두 한 번 이동’을 눌러 보세요.");
+    say("가중치가 모두 0이라 모든 문장의 가중합이 0이고, 계단함수의 출력이 1이라 모두 긍정으로 판정합니다. ‘9개 모두 한 번 이동’을 눌러 보세요.");
     renderAll();
   }
 

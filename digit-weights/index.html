@@ -337,7 +337,7 @@ canvas{background:#fff;border-color:#e3ded4;border-radius:12px}
     </div>
   </div>
 </header>
-<p id="intro" class="intro">3×5 격자의 칸마다 가중치를 하나씩 두고, 칠한 칸의 가중치를 모두 더한 <b>가중합</b> <span class="m"><i>z</i></span>로 숫자 1과 8을 구분합니다. 활성화 함수는 <b>계단함수</b>로, 가중합이 0보다 크면 1(숫자 8), 0 이하이면 −1(숫자 1)을 출력합니다. 학습하는 가중치는 15개입니다.</p>
+<p id="intro" class="intro">3×5 격자의 칸마다 가중치를 하나씩 두고, 칠한 칸의 가중치를 모두 더한 <b>가중합</b> <span class="m"><i>z</i></span>로 숫자 1과 8을 구분합니다. 활성화 함수는 <b>계단함수</b>로, 가중합이 0 이상이면 1(숫자 8), 0보다 작으면 −1(숫자 1)을 출력합니다. 학습하는 가중치는 15개입니다.</p>
 
 <div class="cols">
 <section aria-labelledby="h1">
@@ -354,7 +354,7 @@ canvas{background:#fff;border-color:#e3ded4;border-radius:12px}
   <div class="fedinfo" id="fedinfo"></div>
   <div class="netwrap"><svg id="net" viewBox="0 0 346 392" role="img" aria-label="입력 노드 15개, 출력 노드 1개, 계단함수로 이루어진 인공신경망"></svg></div>
   <div class="legend"><span><i style="background:var(--eight)"></i>양수 가중치</span><span><i style="background:var(--one)"></i>음수 가중치</span><span>선이 굵을수록 절댓값이 큽니다</span></div>
-  <p class="note">활성화 함수는 <b>계단함수</b>입니다. <span class="m"><i>f</i>(<i>z</i>) = 1 (<i>z</i> &gt; 0)</span>, <span class="m"><i>f</i>(<i>z</i>) = −1 (<i>z</i> ≤ 0)</span>이고, 출력이 1이면 숫자 8, −1이면 숫자 1로 판정합니다. 목푯값도 실제 숫자가 8이면 1, 1이면 −1로 두었으므로 출력과 목푯값이 같으면 맞게 판정한 것입니다.</p>
+  <p class="note">활성화 함수는 <b>계단함수</b>입니다. <span class="m"><i>f</i>(<i>z</i>) = 1 (<i>z</i> ≥ 0)</span>, <span class="m"><i>f</i>(<i>z</i>) = −1 (<i>z</i> &lt; 0)</span>이고, 출력이 1이면 숫자 8, −1이면 숫자 1로 판정합니다. 목푯값도 실제 숫자가 8이면 1, 1이면 −1로 두었으므로 출력과 목푯값이 같으면 맞게 판정한 것입니다.</p>
 </section>
 </div>
 
@@ -433,7 +433,7 @@ canvas{background:#fff;border-color:#e3ded4;border-radius:12px}
     <div class="track" id="track"></div>
     <div class="axis2 num" id="axis2"></div>
   </div>
-  <p class="note">가로축은 가중합 <span class="m"><i>z</i></span>입니다. 기준선(<span class="m"><i>z</i> = 0</span>)의 오른쪽은 8, 왼쪽(기준선 포함)은 1로 판정합니다. 빨간 테두리는 틀리게 판정한 그림입니다.</p>
+  <p class="note">가로축은 가중합 <span class="m"><i>z</i></span>입니다. 기준선(<span class="m"><i>z</i> = 0</span>)의 오른쪽(기준선 포함)은 8, 왼쪽은 1로 판정합니다. 빨간 테두리는 틀리게 판정한 그림입니다.</p>
   <div class="draw">
     <div class="wmapbox"><div class="wmt">현재 가중치</div><div class="wheat" id="wheat" role="img" aria-label="3×5 가중치 지도"></div></div>
     <div class="wmapbox"><div class="wmt">그림판</div><div class="pad" id="pad" role="group" aria-label="3×5 그림판"></div></div>
@@ -473,7 +473,8 @@ canvas{background:#fff;border-color:#e3ded4;border-radius:12px}
   function sum(a){return a.reduce(function(s,v){return s+v},0)}
   function zOf(c){var s=0;for(var k=0;k<15;k++)s+=cur.W[k]*c[k];return s}
   function target(d){return d.c===8?1:-1}
-  function verdict(c){return zOf(c)>0?8:1}             // 계단함수: z > 0 이면 1(숫자 8), z ≤ 0 이면 −1(숫자 1)
+  function verdict(c){return isOn(zOf(c))?8:1}         // 계단함수: z ≥ 0 이면 1(숫자 8), z < 0 이면 −1(숫자 1)
+  function isOn(z){return z>=-1e-9}                    // 소수 계산 오차로 0이 −0.0000…1이 되는 경우도 0으로 봄
   function loss(){var n=cur.data.length,t=0;cur.data.forEach(function(d){var e=zOf(d.cells)-target(d);t+=e*e});return n?t/n:0}
   function grads(){
     var n=cur.data.length,G=zeros();
@@ -515,7 +516,7 @@ canvas{background:#fff;border-color:#e3ded4;border-radius:12px}
     if(cur.feed!=="pad"&&cur.feed>=cur.data.length)cur.feed=cur.data.length?0:"pad";
     var fromData=cur.feed!=="pad",cells=fromData?cur.data[cur.feed].cells:cur.pad;
     $("fedinfo").innerHTML=mini(cells,-1,true)+'<span>입력: '+(fromData?'학습 자료 '+(cur.feed+1)+'번 그림 (실제 숫자 '+cur.data[cur.feed].c+')':'내가 그린 그림')+'</span>';
-    var ix=52,ox=190,oy=196,r=28,ax=236,aw=42,qx=316,k,edges="",nodes="",z=zOf(cells),is8=z>0,v=is8?8:1;
+    var ix=52,ox=190,oy=196,r=28,ax=236,aw=42,qx=316,k,edges="",nodes="",z=zOf(cells),is8=isOn(z),v=is8?8:1;
     var vc=is8?'var(--eight)':'var(--one)',mx=ax+aw/2;
     for(k=0;k<15;k++){
       var y=22+k*23+Math.floor(k/3)*6,on=cells[k],w=cur.W[k];
@@ -695,7 +696,7 @@ canvas{background:#fff;border-color:#e3ded4;border-radius:12px}
   function renderPad(){
     var btns=$("pad").children,x=sum(cur.pad),z=zOf(cur.pad),v=verdict(cur.pad);
     for(var i=0;i<15;i++){btns[i].classList.toggle("on",!!cur.pad[i]);btns[i].setAttribute("aria-pressed",cur.pad[i]?"true":"false")}
-    $("myCalc").innerHTML='칠한 '+x+'칸의 가중치의 합 <i>z</i> = '+fmt(z,3)+'<br><i>f</i>(<i>z</i>) = '+(z>0?'1':'−1');
+    $("myCalc").innerHTML='칠한 '+x+'칸의 가중치의 합 <i>z</i> = '+fmt(z,3)+'<br><i>f</i>(<i>z</i>) = '+(isOn(z)?'1':'−1');
     $("bars").innerHTML="";
     $("myVerdict").innerHTML=x===0?'<span class="note">칸을 눌러 숫자를 그려 보세요.</span>':'판정 <span class="pill d'+v+'">'+v+'</span>';
   }
