@@ -7,17 +7,17 @@
   <style>
 
     :root{
-      --bg:#f3f6fa;
-      --panel:#ffffff;
-      --line:#d8dee8;
-      --text:#172033;
-      --muted:#667085;
-      --accent:#2563eb;
-      --accent-soft:#dbeafe;
+      --bg:#f2f0e9;
+      --panel:#fbf9f3;
+      --line:#d8d2c7;
+      --text:#15171a;
+      --muted:#6b6f74;
+      --accent:#15171a;
+      --accent-soft:#e9f5b5;
       --danger:#dc2626;
       --ok:#059669;
-      --shadow:0 5px 18px rgba(16,24,40,.08);
-      --radius:14px;
+      --shadow:0 10px 28px rgba(21,23,26,.055);
+      --radius:16px;
     }
     *{box-sizing:border-box}
     html,body{width:100%;height:100%}
@@ -407,19 +407,62 @@
       .panel-head{min-height:auto}
     }
 
-  </style>
+  
+/* ===== 홈페이지 톤: 공통 상단바 (인공지능 수학 연수) ===== */
+.hb-top{box-sizing:border-box;min-height:72px;display:flex;gap:14px;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(242,240,233,.9);border:1px solid #d8d2c7;border-radius:18px;backdrop-filter:blur(14px);font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",-apple-system,BlinkMacSystemFont,sans-serif;color:#15171a;text-align:left;letter-spacing:-.015em}
+.hb-brand{display:flex;align-items:center;gap:18px;min-width:0}
+.hb-home{display:flex;align-items:center;gap:10px;flex:none;color:#15171a;text-decoration:none;padding:7px 10px 7px 8px;border-radius:12px;transition:background .18s ease}
+.hb-home:hover{background:#e7e3d9;text-decoration:none}
+.hb-arrow{width:31px;height:31px;border:1px solid #c9c4b8;border-radius:50%;display:grid;place-items:center;font-size:16px;line-height:1;background:#fbf9f3}
+.hb-copy{display:block;line-height:1.15}
+.hb-copy strong{display:block;font-size:14px;font-weight:800;letter-spacing:-.035em}
+.hb-copy small{display:block;margin-top:4px;color:#8a8d90;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:7.5px;letter-spacing:.13em;white-space:nowrap}
+.hb-div{width:1px;height:34px;background:#d3cec3;flex:none}
+.hb-title{display:block;min-width:0}
+.hb-eyebrow{display:flex;align-items:center;gap:7px;margin-bottom:4px;color:#7b7770;font-size:10px;font-weight:750;white-space:nowrap}
+.hb-eyebrow span{display:block;width:18px;height:2px;background:#ff5a30}
+.hb-top h1.hb-h1{font-family:inherit;font-size:clamp(18px,1.6vw,24px);margin:0;padding:0;font-weight:800;letter-spacing:-.04em;line-height:1.3;color:#15171a;text-align:left;white-space:normal}
+.hb-top h1.hb-h1 em{font-style:normal;font-weight:500;background:linear-gradient(transparent 60%,#d9f24f 0);padding:0 .04em}
+.hb-top p.hb-sub{margin:4px 0 0;color:#666b6f;font-size:11.5px;line-height:1.45;font-family:inherit;font-style:normal;letter-spacing:0;white-space:normal}
+@media (max-width:820px){.hb-div,.hb-copy{display:none}.hb-home{padding-left:2px}.hb-eyebrow{white-space:normal}.hb-top{align-items:flex-start}}
+@media (max-width:520px){.hb-top{border-radius:14px;padding:9px 10px}.hb-top h1.hb-h1{font-size:20px;line-height:1.25}}
+
+/* ===== 홈페이지 톤 (인공지능 수학 연수 공통 테마에 맞춤) ===== */
+body{background:linear-gradient(rgba(21,23,26,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(21,23,26,.035) 1px,transparent 1px),#f2f0e9;background-size:34px 34px;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",-apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:-.015em;-webkit-font-smoothing:antialiased}
+.panel{background:rgba(251,249,243,.96)}
+.panel-head{background:rgba(247,244,236,.92)}
+.panel-title{position:relative;padding-left:10px;font-weight:800;letter-spacing:-.025em}
+.panel-title::before{content:"";position:absolute;left:0;top:.15em;bottom:.15em;width:3px;border-radius:3px;background:#ff5a30}
+.btn{border-color:#c9c4b8;background:#fbf9f3;border-radius:999px;font-weight:700}
+.btn:hover{border-color:#15171a;background:#f2efe6}
+.btn.primary{background:#15171a;border-color:#15171a;color:#fff}
+.btn.primary:hover{background:#2b2e31}
+th{background:#f4f1e9}
+th,td{border-bottom-color:#eee9df}
+.metric{background:#f4f1e9;border-color:#ddd7cc;border-radius:11px}
+.checkbox-control{background:#f4f1e9;border-radius:12px}
+.control input,td input{background:#fff;border-color:#d3cec3}
+.control input:disabled{background:#efebe2;color:#9a958a}
+.formula{background:#15171a;color:#f6f2e9}
+.speed-value{color:#ff5a30}
+.hb-top .badge{background:#15171a;color:#fff;border:0;box-shadow:none}
+</style>
 </head>
 <body>
 
 <div class="app">
-  <div class="topbar">
-    <a class="back-link" href="../#tools">← 연수 자료실</a>
-    <div class="title-row">
-      <h1>경사하강법 시각화: <em>y = ax</em></h1>
-      <p class="subtitle"><span class="sentence">자료·추세선·손실함수·학습 설정을 한 화면에서 관찰합니다.</span><span class="sentence">재생 중 좌표축 범위는 고정됩니다.</span></p>
+  <header class="hb-top">
+  <div class="hb-brand">
+    <a class="hb-home" href="../#tools" aria-label="연수 자료실로"><span class="hb-arrow">←</span><span class="hb-copy"><strong>인공지능 수학 연수</strong><small>AI MATHEMATICS WORKSHOP</small></span></a>
+    <span class="hb-div" aria-hidden="true"></span>
+    <div class="hb-title">
+      <div class="hb-eyebrow"><span></span>4단원 · 예측과 최적화</div>
+      <h1 class="hb-h1">경사하강법 시각화: <em>y = ax</em></h1>
+      <p class="hb-sub">자료·추세선·손실함수·학습 설정을 한 화면에서 관찰합니다. 재생 중 좌표축 범위는 고정됩니다.</p>
     </div>
-    <div class="badge"><span class="dot" id="runDot"></span><span id="runLabel">준비됨</span></div>
   </div>
+  <div class="badge"><span class="dot" id="runDot"></span><span id="runLabel">준비됨</span></div>
+</header>
 
   <section class="workspace">
     <article class="panel data-panel">
@@ -1097,7 +1140,7 @@
   function setPlaying(on){
     state.playing=on;
     els.play.textContent=on?"Ⅱ 일시정지":"▶ 재생";
-    els.runDot.style.background=on?"#2563eb":"#059669";
+    els.runDot.style.background=on?"#ff5a30":"#73c48f";
     els.runLabel.textContent=on?"실행 중":"준비됨";
   }
 

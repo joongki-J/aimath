@@ -55,16 +55,65 @@
             color: #94a3b8;
             pointer-events: none;
         }
-    </style>
+    
+/* ===== 홈페이지 톤: 공통 상단바 (인공지능 수학 연수) ===== */
+.hb-top{box-sizing:border-box;min-height:72px;display:flex;gap:14px;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(242,240,233,.9);border:1px solid #d8d2c7;border-radius:18px;backdrop-filter:blur(14px);font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",-apple-system,BlinkMacSystemFont,sans-serif;color:#15171a;text-align:left;letter-spacing:-.015em}
+.hb-brand{display:flex;align-items:center;gap:18px;min-width:0}
+.hb-home{display:flex;align-items:center;gap:10px;flex:none;color:#15171a;text-decoration:none;padding:7px 10px 7px 8px;border-radius:12px;transition:background .18s ease}
+.hb-home:hover{background:#e7e3d9;text-decoration:none}
+.hb-arrow{width:31px;height:31px;border:1px solid #c9c4b8;border-radius:50%;display:grid;place-items:center;font-size:16px;line-height:1;background:#fbf9f3}
+.hb-copy{display:block;line-height:1.15}
+.hb-copy strong{display:block;font-size:14px;font-weight:800;letter-spacing:-.035em}
+.hb-copy small{display:block;margin-top:4px;color:#8a8d90;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:7.5px;letter-spacing:.13em;white-space:nowrap}
+.hb-div{width:1px;height:34px;background:#d3cec3;flex:none}
+.hb-title{display:block;min-width:0}
+.hb-eyebrow{display:flex;align-items:center;gap:7px;margin-bottom:4px;color:#7b7770;font-size:10px;font-weight:750;white-space:nowrap}
+.hb-eyebrow span{display:block;width:18px;height:2px;background:#ff5a30}
+.hb-top h1.hb-h1{font-family:inherit;font-size:clamp(18px,1.6vw,24px);margin:0;padding:0;font-weight:800;letter-spacing:-.04em;line-height:1.3;color:#15171a;text-align:left;white-space:normal}
+.hb-top h1.hb-h1 em{font-style:normal;font-weight:500;background:linear-gradient(transparent 60%,#d9f24f 0);padding:0 .04em}
+.hb-top p.hb-sub{margin:4px 0 0;color:#666b6f;font-size:11.5px;line-height:1.45;font-family:inherit;font-style:normal;letter-spacing:0;white-space:normal}
+@media (max-width:820px){.hb-div,.hb-copy{display:none}.hb-home{padding-left:2px}.hb-eyebrow{white-space:normal}.hb-top{align-items:flex-start}}
+@media (max-width:520px){.hb-top{border-radius:14px;padding:9px 10px}.hb-top h1.hb-h1{font-size:20px;line-height:1.25}}
+
+/* ===== 홈페이지 톤 (Tailwind 색을 공통 테마 색으로 덮어씀) ===== */
+html body{background:linear-gradient(rgba(21,23,26,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(21,23,26,.035) 1px,transparent 1px),#f2f0e9;background-size:34px 34px;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",-apple-system,BlinkMacSystemFont,sans-serif;color:#15171a;letter-spacing:-.015em;-webkit-font-smoothing:antialiased}
+body .hb-card{border:1px solid #d8d2c7;border-radius:16px;box-shadow:0 10px 28px rgba(21,23,26,.055)}
+body .bg-white{background-color:#fbf9f3}
+body .canvas-container.bg-white,body thead.bg-white{background-color:#fff}
+body .bg-slate-50,body .bg-gray-50{background-color:#f4f1e9}
+body .bg-gray-200{background-color:#e7e3d9}
+body .hover\:bg-gray-300:hover{background-color:#ddd7cc}
+body .hover\:bg-gray-50:hover{background-color:#f4f1e9}
+body .border-gray-100,body .border-gray-200,body .border-indigo-100{border-color:#e3ded4}
+body .divide-gray-50>:not([hidden])~:not([hidden]){border-color:#eee9df}
+body .bg-indigo-600{background-color:#15171a}
+body .hover\:bg-indigo-700:hover{background-color:#2b2e31}
+body .bg-indigo-500{background-color:#ff5a30}
+body .bg-indigo-300{background-color:#f3a58f}
+body .bg-indigo-50{background-color:#f2f8d0}
+body .bg-indigo-100{background-color:#e7e3d9}
+body .text-indigo-600,body .text-indigo-700{color:#c2410c}
+body .border-indigo-500{border-color:#15171a}
+body .accent-indigo-600{accent-color:#15171a}
+body .ring-indigo-100{--tw-ring-color:#e7e3d9}
+body button.bg-indigo-600,body button.bg-gray-200{border-radius:999px}
+</style>
 </head>
 <body class="p-4 md:p-8">
-    <div class="max-w-6xl mx-auto mb-3"><a href="../#tools" class="inline-flex items-center gap-1 text-sm font-bold text-indigo-600 hover:underline">← 연수 자료실</a></div>
-    <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        <!-- Header -->
-        <header class="bg-indigo-600 p-6 text-white text-center">
-            <h1 class="text-2xl font-bold">경사하강법(Gradient Descent) 시뮬레이터</h1>
-            <p class="opacity-90 mt-2">함수의 최솟값을 찾아가는 과정을 실시간으로 탐구해보세요.</p>
-        </header>
+    <div class="max-w-6xl mx-auto mb-3">
+<header class="hb-top">
+  <div class="hb-brand">
+    <a class="hb-home" href="../#tools" aria-label="연수 자료실로"><span class="hb-arrow">←</span><span class="hb-copy"><strong>인공지능 수학 연수</strong><small>AI MATHEMATICS WORKSHOP</small></span></a>
+    <span class="hb-div" aria-hidden="true"></span>
+    <div class="hb-title">
+      <div class="hb-eyebrow"><span></span>4단원 · 예측과 최적화</div>
+      <h1 class="hb-h1">경사하강법(Gradient Descent) <em>시뮬레이터</em></h1>
+      <p class="hb-sub">함수의 최솟값을 찾아가는 과정을 실시간으로 탐구해보세요.</p>
+    </div>
+  </div>
+</header>
+    </div>
+    <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden hb-card">
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-0">
             <!-- Sidebar: Controls -->
@@ -241,7 +290,7 @@
                     datasets: [
                         {
                             label: '손실 함수',
-                            borderColor: '#cbd5e1',
+                            borderColor: '#4b5057',
                             borderWidth: 3,
                             pointRadius: 0,
                             data: [],
@@ -251,8 +300,8 @@
                         },
                         {
                             label: '이동 경로',
-                            borderColor: '#4f46e5',
-                            backgroundColor: '#4f46e5',
+                            borderColor: '#ff5a30',
+                            backgroundColor: '#ff5a30',
                             borderWidth: 2,
                             pointRadius: 5,
                             pointHoverRadius: 8,
