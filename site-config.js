@@ -56,6 +56,16 @@ const TOOLS = [
     thumb: "./thumbnails/ice-stretch.png"
   },
   {
+    title: "AI 맥락 탐구실",
+    subject: "4단원",
+    type: "실습",
+    symbol: "→",
+    description: "문맥이 바뀌면 다음 말의 비율도 바뀝니다. 예문 말뭉치에서 앞선 단어로 문장을 걸러 내고, 남은 예문으로 다음 토큰의 비율을 세어 AI가 다음 말을 고르는 과정을 체험합니다.",
+    tags: ["언어 모델", "다음 토큰", "문맥", "말뭉치", "확률", "온도"],
+    url: "https://ai-context-lab-20261115.sunny016180190.chatgpt.site/",
+    thumb: "./thumbnails/ai-context-lab.png"
+  },
+  {
     title: "지오지브라 클래식",
     subject: "4단원",
     type: "사이트",
